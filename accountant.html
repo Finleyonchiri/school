@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accountant Portal - St. George's Secondary School</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    }
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(to bottom, #6b48ff, #ff6f61);
+      color: #fff;
+      padding: 20px;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar .profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #ffd700;
+      margin-bottom: 10px;
+    }
+    .sidebar a, .sidebar button {
+      display: block;
+      color: #fff;
+      padding: 15px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .sidebar a:hover, .sidebar button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(5px);
+    }
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section {
+      display: none;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #6b48ff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    select, input, textarea {
+      width>May:1px; width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: #6b48ff;
+      outline: none;
+    }
+    button {
+      padding: 12px 20px;
+      background: linear-gradient(to right, #ff6f61, #ff9f61);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(to right, #ff9f61, #ff6f61);
+      transform: translateY(-2px);
+    }
+    .edit-btn {
+      padding: 8px;
+      background: #6b48ff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .edit-btn:hover {
+      background: #5a3de6;
+    }
+    .error-message, .success-message {
+      font-size: 16px;
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .error-message {
+      color: #ff4444;
+      background: #ffe6e6;
+    }
+    .success-message {
+      color: #00cc00;
+      background: #e6ffe6;
+    }
+    .pending-message {
+      font-size: 16px;
+      color: #ff9f61;
+      background: #fff5e6;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 20px 0;
+      display: none;
+    }
+    .payment-details {
+      display: none;
+      margin-top: 10px;
+    }
+    .announcement-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    .announcement-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .announcement-input i {
+      color: #6b48ff;
+      font-size: 18px;
+    }
+    .announcement-input input, .announcement-input select, .announcement-input textarea {
+      flex: 1;
+    }
+    .announcement-input textarea {
+      resize: vertical;
+      min-height: 100px;
+      max-height: 300px;
+    }
+    .announcement-button {
+      display: flex;
+      justify-content: flex-end;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>Accountant Portal</h2>
+      <div class="profile">
+        <img src="https://imgs.search.brave.com/1qKhkmYlvry_OupmuFSGNJ_lXsQmPzHB2kwTysOEI7M/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA3LzY0LzM0Lzky/LzM2MF9GXzc2NDM0/OTIzNl91V3NzSXkw/WDJKVDBhWWo3RVA2/NHpNUTd2QWZBeTdq/Ry5qcGc" alt="Accountant Icon">
+        <p id="accountantName"></p>
+      </div>
+      <a href="#" onclick="showSection('fees')">Upload Fees</a>
+      <a href="#" onclick="showSection('students')">Students</a>
+      <a href="#" onclick="showSection('feeRecords')">Fee Records</a>
+      <a href="#" onclick="showSection('announcements')">Announcements</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <div class="main-content">
+      <div id="fees" class="section active">
+        <h1><i class="fas fa-money-bill-wave"></i> Upload Fees</h1>
+        <select id="feesFormSelect" onchange="loadFeesForm()">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <select id="feesStudentSelect"></select>
+        <input id="payerName" type="text" placeholder="Payer Name (e.g., John Doe)">
+        <input id="amount" type="number" placeholder="Amount Paid (KES)">
+        <select id="paymentMethod" onchange="updatePaymentDetails()">
+          <option value="">Select Payment Method</option>
+          <option value="bank">Bank</option>
+          <option value="mpesa">M-Pesa</option>
+          <option value="cash">Cash</option>
+          <option value="bursary">Bursary</option>
+        </select>
+        <div id="paymentDetailsBank" class="payment-details">
+          <input id="bankNo" type="text" placeholder="Bank Transaction Number">
+        </div>
+        <div id="paymentDetailsMpesa" class="payment-details">
+          <input id="mpesaCode" type="text" placeholder="M-Pesa Code (e.g., QWERTY1234)">
+        </div>
+        <div id="paymentDetailsBursary" class="payment-details">
+          <input id="checkNumber" type="text" placeholder="Check Number">
+        </div>
+        <button onclick="uploadFees()">Upload Fee Payment</button>
+        <div id="feesPending" class="pending-message">Processing payment...</div>
+        <div id="feesMessage" class="error-message"></div>
+      </div>
+      <div id="students" class="section">
+        <h1><i class="fas fa-users"></i> Students</h1>
+        <select id="studentFormSelect" onchange="loadStudents()">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>Reg No</th>
+              <th>Name</th>
+              <th>Stream</th>
+              <th>Form</th>
+              <th>Total Expected Fees</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody"></tbody>
+        </table>
+        <div id="editStudentForm" style="display: none; margin-top: 20px;">
+          <h3 style="font-size: 20px; color: #333;">Edit Student</h3>
+          <input id="editRegNo" type="text" disabled>
+          <input id="editName" type="text" placeholder="Full Name">
+          <input id="editPassword" type="password" placeholder="New Password">
+          <select id="editForm">
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+          </select>
+          <input id="editStream" type="text" placeholder="Stream (e.g., Victors)">
+          <input id="editTotalFees" type="number" placeholder="Total Expected Fees (KES)">
+          <button onclick="saveStudentEdits()">Save Changes</button>
+          <div id="editStudentMessage" class="error-message"></div>
+        </div>
+      </div>
+      <div id="feeRecords" class="section">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Fee Records</h1>
+        <select id="feeRecordsFormSelect" onchange="loadFeeRecords()">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <select id="feeRecordsStudentSelect" onchange="updateFeeRecords()"></select>
+        <table id="feeRecordsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Payer</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="feeRecordsBody"></tbody>
+        </table>
+      </div>
+      <div id="announcements" class="section">
+        <h1><i class="fas fa-bullhorn"></i> Announcements</h1>
+        <div class="announcement-container">
+          <div class="announcement-input">
+            <i class="fas fa-user"></i>
+            <input id="announcementSender" type="text" placeholder="Sender Name or Email" value="" readonly>
+          </div>
+          <div class="announcement-input">
+            <i class="fas fa-list"></i>
+            <select id="announcementType" onchange="loadAnnouncementForm()">
+              <option value="general">General</option>
+              <option value="individual">Individual</option>
+            </select>
+          </div>
+          <div class="announcement-input" id="announcementStudentContainer" style="display: none;">
+            <i class="fas fa-user-graduate"></i>
+            <select id="announcementStudent"></select>
+          </div>
+          <div class="announcement-input">
+            <i class="fas fa-heading"></i>
+            <input id="announcementTitle" type="text" placeholder="Title">
+          </div>
+          <div class="announcement-input">
+            <i class="fas fa-comment"></i>
+            <textarea id="announcementMessage" placeholder="Message"></textarea>
+          </div>
+          <div class="announcement-button">
+            <button onclick="addAnnouncement()">Add Announcement</button>
+          </div>
+        </div>
+        <div id="announcementMessage" class="error-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
+      authDomain: "web-reg-cbf2f.firebaseapp.com",
+      databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
+      projectId: "web-reg-cbf2f",
+      storageBucket: "web-reg-cbf2f.firebasestorage.app",
+      messagingSenderId: "431303341740",
+      appId: "1:431303341740:web:542070e4c471cd7c8ad109",
+      measurementId: "G-164GMVZQY3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Redirect if not accountant
+    if (localStorage.getItem("userType") !== "accountant") {
+      window.location.href = "index.html";
+    }
+
+    // Set accountant name and sender field
+    const accountantEmail = localStorage.getItem("username") || "Accountant";
+    const accountantName = accountantEmail.split("@")[0].replace("stacc", "");
+    document.getElementById("accountantName").textContent = accountantName;
+    document.getElementById("announcementSender").value = accountantEmail;
+
+    // Utility Functions
+    function showSection(section) {
+      document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
+      document.getElementById(section).classList.add("active");
+    }
+
+    function showMessage(elementId, message, isError = true) {
+      const messageDiv = document.getElementById(elementId);
+      messageDiv.textContent = message;
+      messageDiv.className = isError ? "error-message" : "success-message";
+      messageDiv.style.display = "block";
+      setTimeout(() => {
+        messageDiv.style.display = "none";
+      }, 3000);
+    }
+
+    function showPendingMessage(elementId, message) {
+      const pendingDiv = document.getElementById(elementId);
+      pendingDiv.textContent = message;
+      pendingDiv.style.display = "block";
+      setTimeout(() => {
+        pendingDiv.style.display = "none";
+      }, 6000);
+    }
+
+    function validateRegNo(regNo) {
+      const invalidChars = /[.#$\[\]]/;
+      return !invalidChars.test(regNo);
+    }
+
+    // Fees Section
+    function loadFeesForm() {
+      const formSelect = document.getElementById("feesFormSelect");
+      const studentSelect = document.getElementById("feesStudentSelect");
+      studentSelect.innerHTML = "";
+      const form = formSelect.value;
+      console.log("Loading students for Upload Fees, Form:", form);
+
+      db.ref("users/students").once("value", snapshot => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          if (student.form === form) {
+            studentsList.push({ regNo, name: student.name, stream: student.stream });
+          }
+        });
+
+        if (studentsList.length === 0) {
+          studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
+          showMessage("feesMessage", `No students found in ${form}.`);
+          console.log("No students found in", form);
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentSelect.innerHTML = `<option value="">Select a student</option>`;
+        studentsList.forEach(student => {
+          studentSelect.innerHTML += `<option value="${student.regNo}">${student.name} (${student.regNo})</option>`;
+        });
+        console.log("Students loaded for Upload Fees:", studentsList);
+      }).catch(error => {
+        showMessage("feesMessage", "Failed to load students: " + error.message);
+        console.error("Error loading students for Upload Fees:", error);
+      });
+    }
+
+    function updatePaymentDetails() {
+      const paymentMethod = document.getElementById("paymentMethod").value;
+      document.getElementById("paymentDetailsBank").style.display = paymentMethod === "bank" ? "block" : "none";
+      document.getElementById("paymentDetailsMpesa").style.display = paymentMethod === "mpesa" ? "block" : "none";
+      document.getElementById("paymentDetailsBursary").style.display = paymentMethod === "bursary" ? "block" : "none";
+    }
+
+    function uploadFees() {
+      const studentSelect = document.getElementById("feesStudentSelect");
+      const payerName = document.getElementById("payerName").value.trim();
+      const amount = parseInt(document.getElementById("amount").value);
+      const paymentMethod = document.getElementById("paymentMethod").value;
+      const bankNo = document.getElementById("bankNo").value.trim();
+      const mpesaCode = document.getElementById("mpesaCode").value.trim();
+      const checkNumber = document.getElementById("checkNumber").value.trim();
+
+      if (!studentSelect.value || studentSelect.value === "") {
+        showMessage("feesMessage", "Please select a student.");
+        console.log("Upload Fees aborted: No student selected.");
+        return;
+      }
+
+      if (!payerName || !amount || !paymentMethod) {
+        showMessage("feesMessage", "Please fill in all required fields (Payer Name, Amount, Payment Method).");
+        console.log("Upload Fees aborted: Missing required fields.");
+        return;
+      }
+
+      if (paymentMethod === "bank" && !bankNo) {
+        showMessage("feesMessage", "Please enter the Bank Transaction Number.");
+        console.log("Upload Fees aborted: Missing Bank Transaction Number.");
+        return;
+      }
+
+      if (paymentMethod === "mpesa" && !mpesaCode) {
+        showMessage("feesMessage", "Please enter the M-Pesa Code.");
+        console.log("Upload Fees aborted: Missing M-Pesa Code.");
+        return;
+      }
+
+      if (paymentMethod === "bursary" && !checkNumber) {
+        showMessage("feesMessage", "Please enter the Check Number for Bursary.");
+        console.log("Upload Fees aborted: Missing Check Number.");
+        return;
+      }
+
+      const regNo = studentSelect.value;
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      const transaction = {
+        payer: payerName,
+        amount: amount,
+        method: paymentMethod,
+        date: new Date().toISOString().split("T")[0]
+      };
+
+      if (paymentMethod === "bank") {
+        transaction.bankNo = bankNo;
+      } else if (paymentMethod === "mpesa") {
+        transaction.mpesaCode = mpesaCode;
+      } else if (paymentMethod === "bursary") {
+        transaction.checkNumber = checkNumber;
+      }
+
+      console.log("Uploading fee payment for student:", normalizedRegNo, "Transaction:", transaction);
+      showPendingMessage("feesPending", "Processing payment...");
+      const studentRef = db.ref(`users/students/${normalizedRegNo}/fees/transactions`);
+      studentRef.push(transaction)
+        .then(() => {
+          setTimeout(() => {
+            showMessage("feesMessage", "Fee payment uploaded successfully!", false);
+            console.log("Fee payment uploaded successfully!");
+            document.getElementById("payerName").value = "";
+            document.getElementById("amount").value = "";
+            document.getElementById("paymentMethod").value = "";
+            document.getElementById("bankNo").value = "";
+            document.getElementById("mpesaCode").value = "";
+            document.getElementById("checkNumber").value = "";
+            updatePaymentDetails();
+            loadFeeRecords();
+          }, 6000);
+        })
+        .catch(error => {
+          showMessage("feesMessage", "Failed to upload fee payment: " + error.message);
+          console.error("Error uploading fee payment:", error);
+        });
+    }
+
+    // Students Section
+    function loadStudents() {
+      const form = document.getElementById("studentFormSelect").value;
+      const studentsBody = document.getElementById("studentsBody");
+      studentsBody.innerHTML = "";
+      console.log("Loading students for Students section, Form:", form);
+
+      db.ref("users/students").once("value", snapshot => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          if (student.form === form) {
+            studentsList.push({
+              regNo,
+              name: student.name,
+              stream: student.stream,
+              form: student.form,
+              totalExpected: student.fees?.totalExpected || 0
+            });
+          }
+        });
+
+        if (studentsList.length === 0) {
+          studentsBody.innerHTML = `<tr><td colspan="6">No students found in ${form}.</td></tr>`;
+          console.log("No students found in", form);
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentsList.forEach(student => {
+          studentsBody.innerHTML += `<tr>
+            <td>${student.regNo}</td>
+            <td>${student.name}</td>
+            <td>${student.stream}</td>
+            <td>${student.form}</td>
+            <td>KES ${student.totalExpected}</td>
+            <td><button class="edit-btn" onclick="editStudent('${student.regNo}', '${student.name}', '${student.form}', '${student.stream}', ${student.totalExpected})">Edit</button></td>
+          </tr>`;
+        });
+        console.log("Students loaded for Students section:", studentsList);
+      }).catch(error => {
+        studentsBody.innerHTML = `<tr><td colspan="6">Failed to load students: ${error.message}</td></tr>`;
+        console.error("Error loading students for Students section:", error);
+      });
+    }
+
+    function editStudent(regNo, name, form, stream, totalExpected) {
+      const editForm = document.getElementById("editStudentForm");
+      editForm.style.display = "block";
+      document.getElementById("editRegNo").value = regNo;
+      document.getElementById("editName").value = name;
+      document.getElementById("editPassword").value = "";
+      document.getElementById("editForm").value = form;
+      document.getElementById("editStream").value = stream;
+      document.getElementById("editTotalFees").value = totalExpected;
+    }
+
+    function saveStudentEdits() {
+      const regNo = document.getElementById("editRegNo").value;
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      const name = document.getElementById("editName").value.trim();
+      const password = document.getElementById("editPassword").value;
+      const form = document.getElementById("editForm").value;
+      const stream = document.getElementById("editStream").value.trim();
+      const totalFees = parseInt(document.getElementById("editTotalFees").value);
+
+      if (!name || !form || !stream || !totalFees) {
+        showMessage("editStudentMessage", "Please fill in all required fields.");
+        return;
+      }
+
+      const updates = { 
+        name, 
+        form, 
+        stream, 
+        fees: {
+          totalExpected: totalFees,
+          transactions: db.ref(`users/students/${normalizedRegNo}/fees/transactions`).once("value").then(s => s.val() || [])
+        }
+      };
+      if (password) {
+        updates.password = password;
+      }
+
+      db.ref(`users/students/${normalizedRegNo}`).update(updates)
+        .then(() => {
+          showMessage("editStudentMessage", "Student updated successfully!", false);
+          document.getElementById("editStudentForm").style.display = "none";
+          loadStudents();
+        })
+        .catch(error => {
+          showMessage("editStudentMessage", "Failed to update student: " + error.message);
+        });
+    }
+
+    // Fee Records Section
+    function loadFeeRecords() {
+      const formSelect = document.getElementById("feeRecordsFormSelect");
+      const studentSelect = document.getElementById("feeRecordsStudentSelect");
+      studentSelect.innerHTML = "";
+      const form = formSelect.value;
+      console.log("Loading students for Fee Records, Form:", form);
+
+      db.ref("users/students").once("value", snapshot => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          if (student.form === form) {
+            studentsList.push({ regNo, name: student.name });
+          }
+        });
+
+        if (studentsList.length === 0) {
+          studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
+          document.getElementById("feeRecordsBody").innerHTML = `<tr><td colspan="5">No fee records available.</td></tr>`;
+          console.log("No students found in", form);
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentSelect.innerHTML = `<option value="">Select a student</option>`;
+        studentsList.forEach(student => {
+          studentSelect.innerHTML += `<option value="${student.regNo}">${student.name} (${student.regNo})</option>`;
+        });
+        console.log("Students loaded for Fee Records:", studentsList);
+        updateFeeRecords();
+      }).catch(error => {
+        document.getElementById("feeRecordsBody").innerHTML = `<tr><td colspan="5">Failed to load students: ${error.message}</td></tr>`;
+        console.error("Error loading students for Fee Records:", error);
+      });
+    }
+
+    function updateFeeRecords() {
+      const studentSelect = document.getElementById("feeRecordsStudentSelect");
+      const feeRecordsBody = document.getElementById("feeRecordsBody");
+      feeRecordsBody.innerHTML = "";
+
+      if (!studentSelect.value || studentSelect.value === "") {
+        feeRecordsBody.innerHTML = `<tr><td colspan="5">Please select a student to view fee records.</td></tr>`;
+        console.log("No student selected for Fee Records.");
+        return;
+      }
+
+      const regNo = studentSelect.value;
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      console.log("Loading fee records for student:", normalizedRegNo);
+
+      db.ref(`users/students/${normalizedRegNo}/fees/transactions`).once("value", snapshot => {
+        const transactions = snapshot.val() || {};
+        let transactionList = [];
+
+        Object.keys(transactions).forEach(key => {
+          const t = transactions[key];
+          transactionList.push({
+            date: t.date,
+            payer: t.payer,
+            amount: t.amount,
+            method: t.method,
+            details: t.bankNo || t.mpesaCode || t.checkNumber || "-"
+          });
+        });
+
+        if (transactionList.length === 0) {
+          feeRecordsBody.innerHTML = `<tr><td colspan="5">No fee records available for this student.</td></tr>`;
+          console.log("No fee records found for student:", normalizedRegNo);
+          return;
+        }
+
+        transactionList.sort((a, b) => new Date(b.date) - new Date(a.date));
+        transactionList.forEach(t => {
+          feeRecordsBody.innerHTML += `<tr>
+            <td>${t.date}</td>
+            <td>${t.payer}</td>
+            <td>KES ${t.amount}</td>
+            <td>${t.method}</td>
+            <td>${t.details}</td>
+          </tr>`;
+        });
+        console.log("Fee records loaded:", transactionList);
+      }).catch(error => {
+        feeRecordsBody.innerHTML = `<tr><td colspan="5">Failed to load fee records: ${error.message}</td></tr>`;
+        console.error("Error loading fee records:", error);
+      });
+    }
+
+    // Announcements Section
+    function loadAnnouncementForm() {
+      const typeSelect = document.getElementById("announcementType");
+      const studentSelect = document.getElementById("announcementStudent");
+      const studentContainer = document.getElementById("announcementStudentContainer");
+      studentContainer.style.display = typeSelect.value === "individual" ? "block" : "none";
+      if (typeSelect.value !== "individual") {
+        studentSelect.innerHTML = "";
+        return;
+      }
+
+      studentSelect.innerHTML = "";
+      console.log("Loading students for Announcements");
+
+      db.ref("users/students").once("value", snapshot => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          studentsList.push({ regNo, name: student.name });
+        });
+
+        if (studentsList.length === 0) {
+          studentSelect.innerHTML = `<option value="">No students found.</option>`;
+          showMessage("announcementMessage", "No students found.");
+          console.log("No students found for Announcements");
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentSelect.innerHTML = `<option value="">Select a student</option>`;
+        studentsList.forEach(student => {
+          studentSelect.innerHTML += `<option value="${student.regNo}">${student.name} (${student.regNo})</option>`;
+        });
+        console.log("Students loaded for Announcements:", studentsList);
+      }).catch(error => {
+        studentSelect.innerHTML = `<option>Failed to load students: ${error.message}</option>`;
+        showMessage("announcementMessage", "Failed to load students: " + error.message);
+        console.error("Error loading students for Announcements:", error);
+      });
+    }
+
+    function addAnnouncement() {
+      const type = document.getElementById("announcementType").value;
+      const sender = document.getElementById("announcementSender").value.trim();
+      const title = document.getElementById("announcementTitle").value.trim();
+      const message = document.getElementById("announcementMessage").value.trim();
+
+      if (!sender) {
+        showMessage("announcementMessage", "Please ensure sender name or email is provided.");
+        console.log("Add Announcement aborted: Missing sender.");
+        return;
+      }
+
+      if (!title || !message) {
+        showMessage("announcementMessage", "Please enter both title and message.");
+        console.log("Add Announcement aborted: Missing title or message.");
+        return;
+      }
+
+      const announcement = {
+        title,
+        message,
+        sender: sender,
+        date: new Date().toISOString().split("T")[0]
+      };
+
+      if (type === "general") {
+        console.log("Adding general announcement:", announcement);
+        db.ref("announcements/general").push(announcement)
+          .then(() => {
+            showMessage("announcementMessage", "Announcement added successfully!", false);
+            console.log("General announcement added successfully!");
+            document.getElementById("announcementTitle").value = "";
+            document.getElementById("announcementMessage").value = "";
+            document.getElementById("announcementStudent").value = "";
+            loadAnnouncementForm();
+          })
+          .catch(error => {
+            showMessage("announcementMessage", "Failed to add announcement: " + error.message);
+            console.error("Error adding general announcement:", error);
+          });
+      } else {
+        const regNo = document.getElementById("announcementStudent").value;
+        if (!regNo || regNo === "") {
+          showMessage("announcementMessage", "Please select a student for individual announcement.");
+          console.log("Add Announcement aborted: No student selected for individual announcement.");
+          return;
+        }
+        const normalizedRegNo = regNo.replace(/\//g, "");
+        console.log("Adding individual announcement for student:", normalizedRegNo, "Announcement:", announcement);
+        db.ref(`announcements/individual/${normalizedRegNo}`).push(announcement)
+          .then(() => {
+            showMessage("announcementMessage", "Announcement added successfully!", false);
+            console.log("Individual announcement added successfully!");
+            document.getElementById("announcementTitle").value = "";
+            document.getElementById("announcementMessage").value = "";
+            document.getElementById("announcementStudent").value = "";
+            loadAnnouncementForm();
+          })
+          .catch(error => {
+            showMessage("announcementMessage", "Failed to add announcement: " + error.message);
+            console.error("Error adding individual announcement:", error);
+          });
+      }
+    }
+
+    // Logout Function
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.clear();
+        window.location.href = "index.html";
+      });
+    }
+
+    // Initialize
+    loadFeesForm();
+    loadStudents();
+    loadFeeRecords();
+  </script>
+</body>
+</html>

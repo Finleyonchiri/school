@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Portal - St. George's Secondary School</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    }
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(to bottom, #6b48ff, #ff6f61);
+      color: #fff;
+      padding: 20px;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar .profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #ffd700;
+      margin-bottom: 10px;
+    }
+    .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    .sidebar a, .sidebar button {
+      display: block;
+      color: #fff;
+      padding: 15px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover, .sidebar button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .main-content {
+      flex: 1;
+      padding: 30px;
+    }
+    .section {
+      display: none;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #6b48ff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    select, input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px;
+      background: linear-gradient(to right, #ff6f61, #ff9f61);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: linear-gradient(to right, #ff9f61, #ff6f61);
+    }
+    .edit-btn {
+      padding: 8px;
+      background: #6b48ff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .edit-btn:hover {
+      background: #5a3de6;
+    }
+    .error-message {
+      color: #ff4444;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .checkbox-label input {
+      width: auto;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="profile">
+        <img src="https://img.icons8.com/color/80/000000/teacher.png" alt="Teacher Icon">
+        <p id="teacherName"></p>
+      </div>
+      <h2>Teacher Portal</h2>
+      <a href="#" onclick="showSection('students')">Students</a>
+      <a href="#" onclick="showSection('addStudent')">Add Student</a>
+      <a href="#" onclick="showSection('marks')">Upload Marks</a>
+      <a href="#" onclick="showSection('announcements')">Announcements</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <div class="main-content">
+      <div id="students" class="section active">
+        <h1 style="font-size: 28px; color: #333;">Students</h1>
+        <select id="formSelect" onchange="loadStudents()">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>Reg No</th>
+              <th>Name</th>
+              <th>Stream</th>
+              <th>Form</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody"></tbody>
+        </table>
+        <div id="editStudentForm" style="display: none; margin-top: 20px;">
+          <h3 style="font-size: 20px; color: #333;">Edit Student</h3>
+          <input id="editRegNo" type="text" disabled>
+          <input id="editName" type="text" placeholder="Full Name">
+          <input id="editPassword" type="password" placeholder="New Password">
+          <select id="editForm">
+            <option value="form1">Form 1</option>
+            <option value="form2">Form 2</option>
+            <option value="form3">Form 3</option>
+            <option value="form4">Form 4</option>
+          </select>
+          <button onclick="saveStudentEdits()">Save Changes</button>
+          <div id="editStudentMessage" class="error-message"></div>
+        </div>
+      </div>
+      <div id="addStudent" class="section">
+        <h1 style="font-size: 28px; color: #333;">Add Student</h1>
+        <input id="newRegNo" type="text" placeholder="Reg No (e.g., AID/00119/025)">
+        <input id="newName" type="text" placeholder="Full Name">
+        <input id="newPassword" type="password" placeholder="Password">
+        <select id="newForm">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <input id="newStream" type="text" placeholder="Stream (e.g., victors)">
+        <input id="newTotalFees" type="number" placeholder="Total Expected Fees (KES)">
+        <button onclick="addStudent()">Add Student</button>
+        <div id="addStudentMessage" class="error-message"></div>
+      </div>
+      <div id="marks" class="section">
+        <h1 style="font-size: 28px; color: #333;">Upload Marks</h1>
+        <select id="marksFormSelect" onchange="loadMarksForm()">
+          <option value="form1">Form 1</option>
+          <option value="form2">Form 2</option>
+          <option value="form3">Form 3</option>
+          <option value="form4">Form 4</option>
+        </select>
+        <select id="marksStudentSelect" onchange="updateMarksForm()"></select>
+        <select id="termSelect" onchange="updateMarksForm()">
+          <option value="term1">Term 1</option>
+          <option value="term2">Term 2</option>
+          <option value="term3">Term 3</option>
+        </select>
+        <div style="margin-bottom: 20px;">
+          <label class="checkbox-label">
+            <input type="checkbox" id="uploadCat" onchange="updateMarksForm()"> Upload CAT Marks
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="uploadExam" onchange="updateMarksForm()"> Upload Exam Marks
+          </label>
+        </div>
+        <div id="subjectSelection"></div>
+        <div id="marksForm"></div>
+        <button onclick="uploadMarks()">Upload Marks</button>
+      </div>
+      <div id="announcements" class="section">
+        <h1 style="font-size: 28px; color: #333;">Announcements</h1>
+        <select id="announcementType" onchange="loadAnnouncementForm()">
+          <option value="general">General</option>
+          <option value="individual">Individual</option>
+        </select>
+        <select id="announcementStudent" style="display: none;"></select>
+        <input id="announcementTitle" type="text" placeholder="Title">
+        <textarea id="announcementMessage" placeholder="Message"></textarea>
+        <button onclick="addAnnouncement()">Add Announcement</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
+      authDomain: "web-reg-cbf2f.firebaseapp.com",
+      databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
+      projectId: "web-reg-cbf2f",
+      storageBucket: "web-reg-cbf2f.firebasestorage.app",
+      messagingSenderId: "431303341740",
+      appId: "1:431303341740:web:542070e4c471cd7c8ad109",
+      measurementId: "G-164GMVZQY3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    if (localStorage.getItem("userType") !== "teacher") {
+      window.location.href = "index.html";
+    }
+
+    const subjects = [
+      "English", "Mathematics", "Kiswahili", "Biology", "Chemistry", "Physics",
+      "History", "Geography", "CRE", "Business Studies", "Computer Studies"
+    ];
+
+    // Display teacher name in the sidebar
+    const teacherEmail = localStorage.getItem("username") || "Teacher";
+    const teacherName = teacherEmail.split("@")[0].replace(/\d/g, "");
+    document.getElementById("teacherName").textContent = teacherName;
+
+    function showSection(section) {
+      document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
+      document.getElementById(section).classList.add("active");
+    }
+
+    function showMessage(elementId, message, isError = true) {
+      const messageDiv = document.getElementById(elementId);
+      messageDiv.textContent = message;
+      messageDiv.style.color = isError ? "#ff4444" : "#00cc00";
+      messageDiv.style.display = "block";
+      setTimeout(() => {
+        messageDiv.style.display = "none";
+      }, 3000);
+    }
+
+    function validateRegNo(regNo) {
+      const invalidChars = /[.#$\[\]]/;
+      return !invalidChars.test(regNo);
+    }
+
+    function addStudent() {
+      const regNo = document.getElementById("newRegNo").value.trim();
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      const name = document.getElementById("newName").value.trim();
+      const password = document.getElementById("newPassword").value;
+      const form = document.getElementById("newForm").value;
+      const stream = document.getElementById("newStream").value.trim();
+      const totalFees = parseInt(document.getElementById("newTotalFees").value);
+
+      if (!regNo || !name || !password || !form || !stream || !totalFees) {
+        showMessage("addStudentMessage", "Please fill in all fields.");
+        return;
+      }
+
+      if (!validateRegNo(normalizedRegNo)) {
+        showMessage("addStudentMessage", "Invalid Reg No format. Avoid characters like '.', '#', '$', '[', or ']'.");
+        return;
+      }
+
+      const studentRef = db.ref("users/students/" + normalizedRegNo);
+      studentRef.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          showMessage("addStudentMessage", "Reg No already exists.");
+        } else {
+          const newStudent = {
+            name: name,
+            password: password,
+            form: form,
+            stream: stream,
+            fees: {
+              totalExpected: totalFees,
+              transactions: []
+            },
+            academics: {}
+          };
+          studentRef.set(newStudent)
+            .then(() => {
+              showMessage("addStudentMessage", "Student added successfully!", false);
+              document.getElementById("newRegNo").value = "";
+              document.getElementById("newName").value = "";
+              document.getElementById("newPassword").value = "";
+              document.getElementById("newStream").value = "";
+              document.getElementById("newTotalFees").value = "";
+              loadStudents();
+            })
+            .catch(error => {
+              showMessage("addStudentMessage", "Failed to add student: " + error.message);
+            });
+        }
+      }).catch(error => {
+        showMessage("addStudentMessage", "Error checking Reg No: " + error.message);
+      });
+    }
+
+    function loadStudents() {
+      const form = document.getElementById("formSelect").value;
+      const studentsBody = document.getElementById("studentsBody");
+      studentsBody.innerHTML = "";
+
+      db.ref("users/students").once("value", (snapshot) => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          if (student.form === form) {
+            studentsList.push({
+              regNo,
+              name: student.name,
+              stream: student.stream,
+              form: student.form
+            });
+          }
+        });
+
+        if (studentsList.length === 0) {
+          studentsBody.innerHTML = `<tr><td colspan="5">No students found in ${form}.</td></tr>`;
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentsList.forEach(student => {
+          studentsBody.innerHTML += `<tr>
+            <td>${student.regNo}</td>
+            <td>${student.name}</td>
+            <td>${student.stream}</td>
+            <td>${student.form}</td>
+            <td><button class="edit-btn" onclick="editStudent('${student.regNo}', '${student.name}', '${student.form}')">Edit</button></td>
+          </tr>`;
+        });
+      }).catch(error => {
+        studentsBody.innerHTML = `<tr><td colspan="5">Failed to load students: ${error.message}</td></tr>`;
+      });
+    }
+
+    function editStudent(regNo, name, form) {
+      const editForm = document.getElementById("editStudentForm");
+      editForm.style.display = "block";
+      document.getElementById("editRegNo").value = regNo;
+      document.getElementById("editName").value = name;
+      document.getElementById("editPassword").value = "";
+      document.getElementById("editForm").value = form;
+    }
+
+    function saveStudentEdits() {
+      const regNo = document.getElementById("editRegNo").value;
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      const name = document.getElementById("editName").value.trim();
+      const password = document.getElementById("editPassword").value;
+      const form = document.getElementById("editForm").value;
+
+      if (!name || !form) {
+        showMessage("editStudentMessage", "Please fill in Name and Form.");
+        return;
+      }
+
+      const updates = { name, form };
+      if (password) {
+        updates.password = password;
+      }
+
+      db.ref(`users/students/${normalizedRegNo}`).update(updates)
+        .then(() => {
+          showMessage("editStudentMessage", "Student updated successfully!", false);
+          document.getElementById("editStudentForm").style.display = "none";
+          loadStudents();
+        })
+        .catch(error => {
+          showMessage("editStudentMessage", "Failed to update student: " + error.message);
+        });
+    }
+
+    function loadMarksForm() {
+      const formSelect = document.getElementById("marksFormSelect");
+      const studentSelect = document.getElementById("marksStudentSelect");
+      studentSelect.innerHTML = "";
+      const form = formSelect.value;
+      console.log("Loading students for form:", form);
+
+      db.ref("users/students").once("value", (snapshot) => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          if (student.form === form) {
+            studentsList.push({
+              regNo,
+              name: student.name,
+              stream: student.stream
+            });
+          }
+        });
+
+        if (studentsList.length === 0) {
+          studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
+          document.getElementById("subjectSelection").innerHTML = "";
+          document.getElementById("marksForm").innerHTML = "<p>No students available to upload marks for.</p>";
+          console.log("No students found in", form);
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentSelect.innerHTML = `<option value="">Select a student</option>`;
+        studentsList.forEach(student => {
+          studentSelect.innerHTML += `<option value="${student.regNo}|${student.stream}">${student.name} (${student.regNo})</option>`;
+        });
+        console.log("Students loaded:", studentsList);
+
+        updateMarksForm();
+      }).catch(error => {
+        document.getElementById("marksForm").innerHTML = `<div class="error-message">Failed to load marks form: ${error.message}</div>`;
+        console.error("Error loading students:", error);
+      });
+    }
+
+    function updateMarksForm() {
+      const uploadCat = document.getElementById("uploadCat").checked;
+      const uploadExam = document.getElementById("uploadExam").checked;
+      const term = document.getElementById("termSelect").value;
+      const studentSelect = document.getElementById("marksStudentSelect");
+      const subjectSelection = document.getElementById("subjectSelection");
+      const marksForm = document.getElementById("marksForm");
+
+      console.log("Updating marks form. Student selected:", studentSelect.value);
+      console.log("Upload CAT:", uploadCat, "Upload Exam:", uploadExam, "Term:", term);
+
+      subjectSelection.innerHTML = "";
+      marksForm.innerHTML = "";
+
+      if (!studentSelect.value || studentSelect.value === "") {
+        subjectSelection.innerHTML = "";
+        marksForm.innerHTML = "<p>Please select a student to upload marks for.</p>";
+        console.log("No student selected, exiting updateMarksForm.");
+        return;
+      }
+
+      if (!uploadCat && !uploadExam) {
+        subjectSelection.innerHTML = "";
+        marksForm.innerHTML = "<p>Please select at least one type of marks to upload (CAT or Exam).</p>";
+        console.log("No mark type selected, exiting updateMarksForm.");
+        return;
+      }
+
+      console.log("Rendering subject checkboxes...");
+      let subjectHtml = "<h3 style='font-size: 20px; margin-bottom: 15px; color: #333;'>Select Subjects</h3>";
+      subjects.forEach(subject => {
+        subjectHtml += `
+          <label class="checkbox-label">
+            <input type="checkbox" id="subject_${subject}" onchange="renderMarksInputs()"> ${subject}
+          </label>`;
+      });
+      subjectSelection.innerHTML = subjectHtml;
+      console.log("Subject checkboxes rendered:", subjectHtml);
+
+      renderMarksInputs();
+    }
+
+    function renderMarksInputs() {
+      const uploadCat = document.getElementById("uploadCat").checked;
+      const uploadExam = document.getElementById("uploadExam").checked;
+      const term = document.getElementById("termSelect").value;
+      const studentSelect = document.getElementById("marksStudentSelect");
+      const marksForm = document.getElementById("marksForm");
+      marksForm.innerHTML = "";
+
+      console.log("Rendering marks inputs. Student:", studentSelect.value);
+
+      if (!studentSelect.value || studentSelect.value === "") {
+        marksForm.innerHTML = "<p>Please select a student to upload marks for.</p>";
+        console.log("No student selected in renderMarksInputs, exiting.");
+        return;
+      }
+
+      if (!uploadCat && !uploadExam) {
+        marksForm.innerHTML = "<p>Please select at least one type of marks to upload (CAT or Exam).</p>";
+        console.log("No mark type selected in renderMarksInputs, exiting.");
+        return;
+      }
+
+      const selectedSubjects = subjects.filter(subject => {
+        const checkbox = document.getElementById(`subject_${subject}`);
+        return checkbox && checkbox.checked;
+      });
+
+      console.log("Selected subjects:", selectedSubjects);
+
+      if (selectedSubjects.length === 0) {
+        marksForm.innerHTML = "<p>Please select at least one subject to upload marks for.</p>";
+        console.log("No subjects selected, showing message.");
+        return;
+      }
+
+      if (uploadCat && term !== "term3") {
+        marksForm.innerHTML += "<h3 style='font-size: 20px; margin-bottom: 15px; color: #333;'>CAT</h3>";
+        selectedSubjects.forEach(subject => {
+          marksForm.innerHTML += `<div style="margin-bottom: 15px;">
+            <label style="display: block; font-size: 16px; color: #333;">${subject}</label>
+            <input type="number" id="cat_${subject}" placeholder="Enter CAT marks">
+          </div>`;
+        });
+        console.log("CAT input fields rendered for subjects:", selectedSubjects);
+      }
+      if (uploadExam) {
+        marksForm.innerHTML += `<h3 style='font-size: 20px; margin-bottom: 15px; color: #333;'>${term === "term3" ? "Final Exam" : "Exam"}</h3>`;
+        selectedSubjects.forEach(subject => {
+          marksForm.innerHTML += `<div style="margin-bottom: 15px;">
+            <label style="display: block; font-size: 16px; color: #333;">${subject}</label>
+            <input type="number" id="exam_${subject}" placeholder="Enter Exam marks">
+          </div>`;
+        });
+        console.log("Exam input fields rendered for subjects:", selectedSubjects);
+      }
+    }
+
+    function uploadMarks() {
+      const studentSelect = document.getElementById("marksStudentSelect");
+      if (!studentSelect.value || studentSelect.value === "") {
+        alert("Please select a student to upload marks for.");
+        console.log("Upload aborted: No student selected.");
+        return;
+      }
+
+      const [regNo] = studentSelect.value.split("|");
+      const normalizedRegNo = regNo.replace(/\//g, "");
+      const term = document.getElementById("termSelect").value;
+      const uploadCat = document.getElementById("uploadCat").checked;
+      const uploadExam = document.getElementById("uploadExam").checked;
+
+      console.log("Uploading marks for student:", normalizedRegNo, "Term:", term);
+
+      const selectedSubjects = subjects.filter(subject => {
+        const checkbox = document.getElementById(`subject_${subject}`);
+        return checkbox && checkbox.checked;
+      });
+
+      if (selectedSubjects.length === 0) {
+        alert("Please select at least one subject to upload marks for.");
+        console.log("Upload aborted: No subjects selected.");
+        return;
+      }
+
+      const marks = {};
+      if (uploadCat && term !== "term3") {
+        marks.cat = {};
+        selectedSubjects.forEach(subject => {
+          const catMarks = document.getElementById(`cat_${subject}`).value;
+          if (catMarks) marks.cat[subject] = parseInt(catMarks);
+        });
+        console.log("CAT marks to upload:", marks.cat);
+      }
+      if (uploadExam) {
+        marks.exam = {};
+        selectedSubjects.forEach(subject => {
+          const examMarks = document.getElementById(`exam_${subject}`).value;
+          if (examMarks) marks.exam[subject] = parseInt(examMarks);
+        });
+        console.log("Exam marks to upload:", marks.exam);
+      }
+
+      if (Object.keys(marks.cat || {}).length === 0 && Object.keys(marks.exam || {}).length === 0) {
+        alert("Please enter at least one mark.");
+        console.log("Upload aborted: No marks entered.");
+        return;
+      }
+
+      console.log("Uploading marks to Firebase at path:", `users/students/${normalizedRegNo}/academics/${term}`);
+      db.ref(`users/students/${normalizedRegNo}/academics/${term}`).update(marks)
+        .then(() => {
+          alert("Marks uploaded successfully!");
+          console.log("Marks uploaded successfully!");
+          loadMarksForm(); // Refresh the form
+        })
+        .catch(error => {
+          alert("Failed to upload marks: " + error.message);
+          console.error("Upload failed:", error);
+        });
+    }
+
+    function loadAnnouncementForm() {
+      const typeSelect = document.getElementById("announcementType");
+      const studentSelect = document.getElementById("announcementStudent");
+      studentSelect.style.display = typeSelect.value === "individual" ? "block" : "none";
+      if (typeSelect.value !== "individual") return;
+
+      studentSelect.innerHTML = "";
+      db.ref("users/students").once("value", (snapshot) => {
+        const students = snapshot.val() || {};
+        let studentsList = [];
+
+        Object.keys(students).forEach(regNo => {
+          const student = students[regNo];
+          studentsList.push({
+            regNo,
+            name: student.name
+          });
+        });
+
+        if (studentsList.length === 0) {
+          studentSelect.innerHTML = `<option value="">No students found.</option>`;
+          return;
+        }
+
+        studentsList.sort((a, b) => a.regNo.localeCompare(b.regNo));
+        studentsList.forEach(student => {
+          studentSelect.innerHTML += `<option value="${student.regNo}">${student.name} (${student.regNo})</option>`;
+        });
+      }).catch(error => {
+        studentSelect.innerHTML = `<option>Failed to load students: ${error.message}</option>`;
+      });
+    }
+
+    function addAnnouncement() {
+      const type = document.getElementById("announcementType").value;
+      const title = document.getElementById("announcementTitle").value.trim();
+      const message = document.getElementById("announcementMessage").value.trim();
+
+      if (!title || !message) {
+        alert("Please enter both title and message.");
+        return;
+      }
+
+      const announcement = {
+        title,
+        message,
+        date: new Date().toISOString().split("T")[0],
+        teacher: teacherName
+      };
+
+      if (type === "general") {
+        db.ref("announcements/general").push(announcement)
+          .then(() => {
+            alert("Announcement added successfully!");
+            document.getElementById("announcementTitle").value = "";
+            document.getElementById("announcementMessage").value = "";
+          })
+          .catch(error => {
+            alert("Failed to add announcement: " + error.message);
+          });
+      } else {
+        const regNo = document.getElementById("announcementStudent").value;
+        if (!regNo) {
+          alert("Please select a student for individual announcement.");
+          return;
+        }
+        const normalizedRegNo = regNo.replace(/\//g, "");
+        db.ref(`announcements/individual/${normalizedRegNo}`).push(announcement)
+          .then(() => {
+            alert("Announcement added successfully!");
+            document.getElementById("announcementTitle").value = "";
+            document.getElementById("announcementMessage").value = "";
+          })
+          .catch(error => {
+            alert("Failed to add announcement: " + error.message);
+          });
+      }
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.clear();
+        window.location.href = "index.html";
+      });
+    }
+
+    loadStudents();
+    loadMarksForm(); // Ensure the form loads on page load
+  </script>
+</body>
+</html>
+// Initialize Firebase (add at the top of script.js, before other functions)
+const firebaseConfig = {
+    apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
+    authDomain: "web-reg-cbf2f.firebaseapp.com",
+    databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
+    projectId: "web-reg-cbf2f",
+    storageBucket: "web-reg-cbf2f.firebasestorage.app",
+    messagingSenderId: "431303341740",
+    appId: "1:431303341740:web:542070e4c471cd7c8ad109",
+    measurementId: "G-164GMVZQY3"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function teacherAddStudent(event) {
+    event.preventDefault();
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || user.role !== "teacher") {
+        showError("Only teachers can add students.");
+        return;
+    }
+
+    const regNo = document.getElementById("teacherAddStudentRegNo").value.trim().toUpperCase();
+    const name = document.getElementById("teacherAddStudentName").value.trim();
+    const gender = document.getElementById("teacherAddStudentGender").value;
+    const form = document.getElementById("teacherAddStudentForm").value;
+    const sponsor = document.getElementById("teacherAddStudentSponsor").value;
+    const password = document.getElementById("teacherAddStudentPassword").value;
+
+    if (!name || !regNo || !gender || !form || !sponsor || !password) {
+        showError("All fields are required.");
+        return;
+    }
+
+    if (password.length < 6) {
+        showError("Password must be at least 6 characters.");
+        return;
+    }
+
+    if (Object.values(users).some(u => u.id === regNo || u.username === regNo)) {
+        showError("Registration number or username already exists.");
+        return;
+    }
+
+    const newStudent = {
+        username: regNo,
+        password: password,
+        role: "student",
+        id: regNo,
+        name: name,
+        regDetails: `Reg: ${regNo}, Year: ${new Date().getFullYear()}`,
+        academicInfo: `Form ${form}, Stream A`,
+        gender: gender,
+        form: form,
+        sponsor: sponsor
+    };
+
+    const subjects = ["mathematics", "english", "kiswahili", "chemistry", "biology", "physics", "history", "geography", "cre", "business", "agriculture"];
+    const terms = ["term1_cat", "term1_final", "term2_cat", "term2_exam", "term3_exam"];
+    const marks = {};
+    subjects.forEach(subject => {
+        marks[subject] = {};
+        terms.forEach(term => marks[subject][term] = null);
+    });
+
+    try {
+        // Write to Firebase
+        db.ref(`users/students/${regNo}`).set(newStudent).then(() => {
+            // Sync with localStorage
+            users[regNo] = newStudent;
+            studentData[regNo] = {
+                feesPaid: 0,
+                feeStatement: "No payments yet",
+                events: "Term 1: Jan 10 - Apr 15, Sports Day: Mar 20",
+                marks: marks,
+                remarks: "Awaiting marks entry."
+            };
+
+            auditLog.push({ action: `Student added by teacher ${user.id}: ${regNo}`, timestamp: new Date().toISOString() });
+            saveUsers();
+            saveStudentData();
+            saveAuditLog();
+
+            showSuccess("Student added successfully!");
+            document.getElementById("teacherAddStudentForm").reset();
+        }).catch((error) => {
+            console.error("Firebase error:", error);
+            showError("Failed to add student to Firebase: " + error.message);
+        });
+    } catch (error) {
+        console.error("Error adding student:", error);
+        showError("Failed to add student: " + error.message);
+    }
+}

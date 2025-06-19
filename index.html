@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - BORABU TTC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    body {
+      background-color: #1a3c6b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: auto;
+    }
+    .container {
+      height: 45em;
+      width: 37.5em;
+      position: relative;
+      margin: auto;
+    }
+    form {
+      width: 28em;
+      background-color: #ffffff;
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 2.5em 3.5em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-radius: 0.75em;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      border: 2px solid #ffd700;
+      z-index: 10;
+    }
+    form label {
+      display: block;
+      margin-bottom: 0.3em;
+      font-weight: 600;
+      color: #2e0d30;
+      font-size: 1.1em;
+    }
+    form select,
+    form input {
+      font-size: 1.1em;
+      font-weight: 400;
+      color: #3f3554;
+      padding: 0.5em;
+      border: none;
+      border-bottom: 0.15em solid #3f3554;
+      outline: none;
+      width: 100%;
+      margin-bottom: 1.2em;
+    }
+    form select:focus,
+    form input:focus {
+      border-color: #4a90e2;
+    }
+    form button {
+      font-size: 1.1em;
+      padding: 1em 0;
+      border-radius: 2em;
+      border: none;
+      cursor: pointer;
+      background-color: #4a90e2;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      margin-top: 1em;
+      transition: background-color 0.5s, transform 0.2s;
+    }
+    form button:hover {
+      background-color: #1a3c6b;
+      transform: translateY(-2px);
+    }
+    .error-message {
+      color: #d32f2f;
+      font-size: 1em;
+      margin-top: 1em;
+      text-align: center;
+      display: none;
+    }
+    .forgot-password {
+      display: block;
+      margin-top: 1em;
+      color: #4a90e2;
+      font-size: 1em;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .forgot-password:hover {
+      color: #2e0d30;
+      text-decoration: underline;
+    }
+    #resetForm {
+      display: none;
+      margin-top: 1.5em;
+    }
+    .panda-face {
+      height: 9em;
+      width: 10em;
+      background: url('https://via.placeholder.com/150x150?text=St+George+Logo') no-repeat center;
+      background-size: contain;
+      border: 0.2em solid #2e0d30;
+      border-radius: 9em 9em 6.75em 6.75em;
+      position: absolute;
+      top: 2em;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .ear-l,
+    .ear-r {
+      background-color: #3f3554;
+      height: 3em;
+      width: 3.37em;
+      border: 0.2em solid #2e0d30;
+      border-radius: 3em 3em 0 0;
+      top: 1.5em;
+      position: absolute;
+    }
+    .ear-l {
+      transform: rotate(-38deg);
+      left: 11.5em;
+    }
+    .ear-r {
+      transform: rotate(38deg);
+      right: 11.5em;
+    }
+    .blush-l,
+    .blush-r {
+      background-color: #ff8bb1;
+      height: 1.2em;
+      width: 1.64em;
+      border-radius: 50%;
+      position: absolute;
+      top: 4.8em;
+    }
+    .blush-l {
+      transform: rotate(25deg);
+      left: 1.2em;
+    }
+    .blush-r {
+      transform: rotate(-25deg);
+      right: 1.2em;
+    }
+    .eye-l,
+    .eye-r {
+      background-color: #3f3554;
+      height: 2.62em;
+      width: 2.4em;
+      border-radius: 2.4em;
+      position: absolute;
+      top: 2.62em;
+    }
+    .eye-l {
+      left: 1.64em;
+      transform: rotate(-20deg);
+    }
+    .eye-r {
+      right: 1.64em;
+      transform: rotate(20deg);
+    }
+    .eyeball-l,
+    .eyeball-r {
+      height: 0.72em;
+      width: 0.72em;
+      background-color: #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      left: 0.72em;
+      top: 0.72em;
+      transition: 1s all;
+    }
+    .eyeball-l {
+      transform: rotate(20deg);
+    }
+    .eyeball-r {
+      transform: rotate(-20deg);
+    }
+    .nose {
+      height: 1.2em;
+      width: 1.2em;
+      background-color: #3f3554;
+      position: absolute;
+      top: 5.24em;
+      margin: auto;
+      left: 0;
+      right: 0;
+      border-radius: 1.44em 0 0 0.3em;
+      transform: rotate(45deg);
+    }
+    .nose:before {
+      content: "";
+      position: absolute;
+      background-color: #3f3554;
+      height: 0.72em;
+      width: 0.12em;
+      transform: rotate(-45deg);
+      top: 0.9em;
+      left: 1.2em;
+    }
+    .mouth,
+    .mouth:before {
+      height: 0.9em;
+      width: 1.12em;
+      background-color: transparent;
+      position: absolute;
+      border-radius: 50%;
+      box-shadow: 0 0.22em #3f3554;
+    }
+    .mouth {
+      top: 6.37em;
+      left: 3.74em;
+    }
+    .mouth:before {
+      content: "";
+      position: absolute;
+      left: 1.04em;
+    }
+    .hand-l,
+    .hand-r {
+      background-color: #3f3554;
+      height: 3.37em;
+      width: 3em;
+      border: 0.2em solid #2e0d30;
+      border-radius: 0.72em 0.72em 2.62em 2.62em;
+      position: absolute;
+      top: 12em;
+      z-index: 5;
+    }
+    .hand-l {
+      left: 8em;
+    }
+    .hand-r {
+      right: 8em;
+    }
+    .user-type-text {
+      position: absolute;
+      top: 14em;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffffff;
+      padding: 0.5em 1em;
+      border-radius: 0.5em;
+      border: 0.2em solid #2e0d30;
+      font-size: 1em;
+      font-weight: 600;
+      color: #2e0d30;
+      text-align: center;
+      z-index: 10;
+      min-width: 12em;
+    }
+    .paw-l,
+    .paw-r {
+      background-color: #3f3554;
+      height: 3.75em;
+      width: 3.75em;
+      border: 0.2em solid #2e0d30;
+      border-radius: 3em 3em 1.44em 1.44em;
+      position: absolute;
+      top: 38em;
+    }
+    .paw-l {
+      left: 10.5em;
+    }
+    .paw-r {
+      right: 10.5em;
+    }
+    .paw-l:before,
+    .paw-r:before {
+      position: absolute;
+      content: "";
+      background-color: #ffffff;
+      height: 1.64em;
+      width: 2.1em;
+      top: 1.34em;
+      left: 0.66em;
+      border-radius: 1.87em 1.87em 0.72em 0.72em;
+    }
+    .paw-l:after,
+    .paw-r:after {
+      position: absolute;
+      content: "";
+      background-color: #ffffff;
+      height: 0.6em;
+      width: 0.6em;
+      border-radius: 50%;
+      top: 0.37em;
+      left: 1.34em;
+      box-shadow: 1.04em 0.44em #ffffff, -1.04em 0.44em #ffffff;
+    }
+    @media screen and (max-width: 600px) {
+      .container {
+        font-size: 14px;
+        width: 90%;
+        height: 40em;
+      }
+      form {
+        width: 90%;
+        padding: 2em;
+      }
+      .panda-face {
+        height: 7em;
+        width: 8em;
+      }
+      .ear-l, .ear-r {
+        height: 2.5em;
+        width: 2.81em;
+      }
+      .paw-l, .paw-r {
+        top: 33em;
+      }
+      .hand-l, .hand-r {
+        top: 11em;
+      }
+      .user-type-text {
+        top: 13em;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form>
+      <label for="userType">User Type:</label>
+      <select id="userType" onchange="updateUserTypeText()">
+        <option value="student">Student</option>
+        <option value="teacher">Teacher</option>
+        <option value="accountant">Accountant</option>
+      </select>
+      <label for="username">Username:</label>
+      <input type="text" id="username" placeholder="Reg No (e.g., AID/00119/025) or Email">
+      <label for="password">Password:</label>
+      <input type="password" id="password" placeholder="Password">
+      <button type="button" onclick="login()">Login</button>
+      <a class="forgot-password" onclick="showResetForm()">Forgot Password?</a>
+      <div id="resetForm">
+        <label for="resetUsername">Reg No or Email:</label>
+        <input type="text" id="resetUsername" placeholder="Reg No or Email">
+        <label for="newPassword">New Password (Students Only):</label>
+        <input type="password" id="newPassword" placeholder="New Password">
+        <button type="button" onclick="resetPassword()">Reset Password</button>
+      </div>
+      <div id="errorMessage" class="error-message"></div>
+    </form>
+    <div class="ear-l"></div>
+    <div class="ear-r"></div>
+    <div class="panda-face"></div>
+    <div class="hand-l"></div>
+    <div class="hand-r"></div>
+    <div class="user-type-text" id="userTypeText">Student Logging In</div>
+    <div class="paw-l"></div>
+    <div class="paw-r"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
+      authDomain: "web-reg-cbf2f.firebaseapp.com",
+      databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
+      projectId: "web-reg-cbf2f",
+      storageBucket: "web-reg-cbf2f.firebasestorage.app",
+      messagingSenderId: "431303341740",
+      appId: "1:431303341740:web:542070e4c471cd7c8ad109",
+      measurementId: "G-164GMVZQY3"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function updateUserTypeText() {
+      const userType = document.getElementById("userType").value;
+      const userTypeText = document.getElementById("userTypeText");
+      userTypeText.textContent = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Logging In`;
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById("errorMessage");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+    }
+
+    function hideError() {
+      const errorDiv = document.getElementById("errorMessage");
+      errorDiv.style.display = "none";
+    }
+
+    function validateRegNo(regNo) {
+      const invalidChars = /[.#$\[\]]/;
+      return !invalidChars.test(regNo);
+    }
+
+    function showResetForm() {
+      document.getElementById("resetForm").style.display = "block";
+      document.getElementById("username").disabled = true;
+      document.getElementById("password").disabled = true;
+    }
+
+    function resetPassword() {
+      const userType = document.getElementById("userType").value;
+      const resetUsername = document.getElementById("resetUsername").value.trim();
+      const newPassword = document.getElementById("newPassword").value;
+
+      if (!resetUsername) {
+        showError("Please enter your Reg No or Email.");
+        return;
+      }
+
+      if (userType === "student") {
+        if (!newPassword) {
+          showError("Please enter a new password.");
+          return;
+        }
+        const normalizedUsername = resetUsername.replace(/\//g, "");
+        if (!validateRegNo(normalizedUsername)) {
+          showError("Invalid Reg No format. Use format like AID/00119/025 and avoid characters like '.', '#', '$', '[', or ']'.");
+          return;
+        }
+        const studentRef = db.ref("users/students/" + normalizedUsername);
+        studentRef.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            studentRef.update({ password: newPassword })
+              .then(() => {
+                showError("Password reset successfully! Please log in.");
+                document.getElementById("resetForm").style.display = "none";
+                document.getElementById("username").disabled = false;
+                document.getElementById("password").disabled = false;
+              })
+              .catch(error => showError("Failed to reset password: " + error.message));
+          } else {
+            showError("Reg No not found.");
+          }
+        }).catch(error => showError("Error checking Reg No: " + error.message));
+      } else {
+        auth.sendPasswordResetEmail(resetUsername)
+          .then(() => {
+            showError("Password reset email sent! Check your inbox.");
+            document.getElementById("resetForm").style.display = "none";
+            document.getElementById("username").disabled = false;
+            document.getElementById("password").disabled = false;
+          })
+          .catch(error => showError("Failed to send reset email: " + error.message));
+      }
+    }
+
+    function login() {
+      const userType = document.getElementById("userType").value;
+      const username = document.getElementById("username").value.trim();
+      const normalizedUsername = username.replace(/\//g, "");
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        showError("Please enter both username and password.");
+        return;
+      }
+
+      if (userType === "student") {
+        if (!validateRegNo(normalizedUsername)) {
+          showError("Invalid Reg No format. Use format like AID/00119/025 and avoid characters like '.', '#', '$', '[', or ']'.");
+          return;
+        }
+
+        const studentRef = db.ref("users/students/" + normalizedUsername);
+        studentRef.once("value", (snapshot) => {
+          if (snapshot.exists()) {
+            const student = snapshot.val();
+            if (student.password === password) {
+              localStorage.setItem("userType", "student");
+              localStorage.setItem("regNo", normalizedUsername);
+              window.location.href = "student.html";
+            } else {
+              showError("Incorrect password.");
+            }
+          } else {
+            showError("Reg No not found.");
+          }
+        }).catch((error) => showError("Failed to login: " + error.message));
+      } else {
+        const email = username;
+        if (userType === "accountant") {
+          const accountantEmailPattern = /^stacc@[\w-]+\.ac$/;
+          if (!accountantEmailPattern.test(email)) {
+            showError("Accountant email must be in the format stacc@<something>.ac (e.g., stacc@moke.ac).");
+            return;
+          }
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            localStorage.setItem("userType", userType);
+            localStorage.setItem("username", email);
+            window.location.href = userType === "teacher" ? "teacher.html" : "accountant.html";
+          })
+          .catch((error) => {
+            if (error.code === "auth/user-not-found") {
+              showError("Email not found.");
+            } else if (error.code === "auth/wrong-password") {
+              showError("Incorrect password.");
+            } else {
+              showError("Failed to login: " + error.message);
+            }
+          });
+      }
+    }
+
+    // Initialize user type text on page load
+    window.onload = updateUserTypeText;
+  </script>
+</body>
+</html>

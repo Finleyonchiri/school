@@ -1,0 +1,337 @@
+{
+  "announcements": {
+    "ann1": {
+      "author": "teacher1",
+      "date": "2025-01-20",
+      "role": "teacher",
+      "text": "Term 1 CAT exams begin Feb 10, 2025. Prepare adequately."
+    },
+    "ann2": {
+      "author": "accountant1",
+      "date": "2025-01-25",
+      "role": "accountant",
+      "text": "All fees due by Mar 15, 2025. Pay via M-Pesa or bank."
+    },
+    "ann3": {
+      "author": "admin1",
+      "date": "2025-02-01",
+      "role": "admin",
+      "text": "Library fines must be cleared before exams."
+    },
+    "individual": {
+      "AID_00118_024": {
+        "-OTQiFWKxGDhfY1fgXQ5": {
+          "date": "2025-06-23",
+          "message": "mambo fin",
+          "sender": "stacc@moke.ac",
+          "title": "HI"
+        }
+      }
+    }
+  },
+  "events": {
+    "event1": {
+      "date": "2025-03-20",
+      "description": "Annual athletics competition.",
+      "title": "Sports Day"
+    },
+    "event2": {
+      "date": "2025-04-15",
+      "description": "End of Term 1 academic session.",
+      "title": "Term 1 Closing"
+    }
+  },
+  "specialExams": {
+    "req1": {
+      "approvedBy": "admin1",
+      "date": "2025-02-01",
+      "details": "Missed Term 1 CAT due to medical reasons.",
+      "studentId": "AID_00118_024",
+      "studentName": "John Doe",
+      "subjects": [
+        "mathematics",
+        "english"
+      ]
+    }
+  },
+  "users": {
+    "accountants": {
+      "accountant1": {
+        "email": "accountant1.stacc@moke.ac",
+        "name": "Accountant One",
+        "password": "Acc@2025",
+        "role": "accountant"
+      }
+    },
+    "admins": {
+      "admin1": {
+        "email": "admin1.stacc@moke.ac",
+        "name": "Admin One",
+        "password": "Admin@2025",
+        "role": "admin"
+      }
+    },
+    "students": {
+      "1989": {
+        "academics": {
+          "term1": {
+            "cat": {
+              "Business Studies": 88,
+              "CRE": 77,
+              "Computer Studies": 99
+            }
+          }
+        },
+        "fees": {
+          "totalExpected": 50000,
+          "transactions": {
+            "-OTQqq0d_h6kLT6fDBK9": {
+              "amount": 5000,
+              "date": "2025-06-23",
+              "method": "mpesa",
+              "mpesaCode": "DFFDH77DSGQ",
+              "payer": "LUKEMACHOGU POPCAN"
+            }
+          }
+        },
+        "form": "form2",
+        "profile": {
+          "name": "FINLEY ONCHIRI NYABUGA",
+          "password": "123456"
+        },
+        "stream": "V"
+      },
+      "AID_00118_024": {
+        "attendance": {
+          "term1": {
+            "absent": 3,
+            "late": 2,
+            "present": 55,
+            "records": [
+              {
+                "date": "2025-01-10",
+                "status": "present"
+              },
+              {
+                "date": "2025-01-11",
+                "reason": "medical",
+                "status": "absent"
+              }
+            ],
+            "totalDays": 60
+          }
+        },
+        "clubs": {
+          "club1": {
+            "enrollDate": "2025-01-10",
+            "enrolledBy": "teacher1",
+            "name": "Debate Club",
+            "role": "member"
+          },
+          "club2": {
+            "enrollDate": "2025-01-15",
+            "enrolledBy": "teacher2",
+            "name": "Football Team",
+            "role": "captain"
+          }
+        },
+        "disciplinary": {
+          "case1": {
+            "action": "Warning issued",
+            "date": "2025-02-05",
+            "incident": "Late submission of assignment",
+            "recordedBy": "teacher1"
+          }
+        },
+        "events": {
+          "event1": {
+            "date": "2025-03-20",
+            "title": "Sports Day"
+          },
+          "event2": {
+            "date": "2025-04-15",
+            "title": "Term 1 Closing"
+          }
+        },
+        "fees": {
+          "balance": 24000,
+          "paid": 2000,
+          "statement": "Premium Statement: Q1 2025",
+          "total": 44000,
+          "transactions": [
+            {
+              "amount": 20000,
+              "date": "2025-01-15",
+              "method": "mpesa",
+              "payer": "Jane Doe",
+              "transactionCode": "MPESA123456"
+            }
+          ]
+        },
+        "health": {
+          "allergies": [
+            "peanuts"
+          ],
+          "emergencyContact": {
+            "name": "Jane Doe",
+            "phone": "1234567890",
+            "relationship": "mother"
+          },
+          "medicalConditions": [
+            "asthma"
+          ]
+        },
+        "library": {
+          "borrowedBooks": [
+            {
+              "bookId": "BOOK123",
+              "borrowDate": "2025-02-01",
+              "dueDate": "2025-02-15",
+              "status": "borrowed",
+              "title": "Mathematics for Year 4"
+            }
+          ],
+          "fines": {
+            "balance": 100,
+            "paid": 0,
+            "total": 100
+          }
+        },
+        "marks": {
+          "term1": {
+            "cat": {
+              "chemistry": 80,
+              "english": 78,
+              "kiswahili": 82,
+              "mathematics": 85
+            },
+            "exam": {
+              "chemistry": 87,
+              "english": 85,
+              "kiswahili": 88,
+              "mathematics": 90
+            },
+            "grades": {
+              "average": 83.75,
+              "chemistry": "B",
+              "english": "B+",
+              "gpa": 3.8,
+              "kiswahili": "A-",
+              "mathematics": "A"
+            }
+          }
+        },
+        "profile": {
+          "admissionNumber": "AID/00118/024",
+          "gender": "male",
+          "name": "John Doe",
+          "parentName": "Jane Doe",
+          "parentPhone": "1234567890",
+          "password": "pass123",
+          "role": "student",
+          "sponsor": "self",
+          "stream": "A",
+          "subjects": [
+            "mathematics",
+            "english",
+            "kiswahili",
+            "chemistry"
+          ],
+          "year": "4",
+          "yearEnrolled": "2025"
+        },
+        "remarks": "Excellent performance in Term 1. Keep it up!"
+      },
+      "AID_00119_025": {
+        "attendance": {
+          "term1": {
+            "absent": 2,
+            "late": 0,
+            "present": 58,
+            "totalDays": 60
+          }
+        },
+        "events": {
+          "event1": {
+            "date": "2025-03-20",
+            "title": "Sports Day"
+          },
+          "event2": {
+            "date": "2025-04-15",
+            "title": "Term 1 Closing"
+          }
+        },
+        "fees": {
+          "balance": 44000,
+          "paid": 0,
+          "statement": "No payments yet",
+          "total": 44000
+        },
+        "health": {
+          "emergencyContact": {
+            "name": "Peter Smith",
+            "phone": "0987654321",
+            "relationship": "father"
+          }
+        },
+        "library": {
+          "fines": {
+            "balance": 0,
+            "paid": 0,
+            "total": 0
+          }
+        },
+        "profile": {
+          "admissionNumber": "AID/00119/025",
+          "gender": "female",
+          "name": "Mary Smith",
+          "parentName": "Peter Smith",
+          "parentPhone": "0987654321",
+          "password": "pass123",
+          "role": "student",
+          "sponsor": "church",
+          "stream": "B",
+          "subjects": [
+            "mathematics",
+            "english",
+            "kiswahili",
+            "biology"
+          ],
+          "year": "3",
+          "yearEnrolled": "2025"
+        },
+        "remarks": "Awaiting marks entry."
+      }
+    },
+    "teachers": {
+      "teacher1": {
+        "email": "teacher1.stacc@moke.ac",
+        "name": "Teacher One",
+        "password": "Teach@2025",
+        "role": "teacher",
+        "subjectsTaught": [
+          "mathematics",
+          "chemistry"
+        ],
+        "yearAssigned": [
+          "3",
+          "4"
+        ]
+      },
+      "teacher2": {
+        "email": "teacher2.stacc@moke.ac",
+        "name": "Teacher Two",
+        "password": "Teach@2025",
+        "role": "teacher",
+        "subjectsTaught": [
+          "english",
+          "kiswahili"
+        ],
+        "yearAssigned": [
+          "3",
+          "4"
+        ]
+      }
+    }
+  }
+}

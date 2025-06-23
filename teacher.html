@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teacher Portal - St. George's Secondary School</title>
+  <title>Teacher Portal - BORABU TTC</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -126,6 +126,11 @@
       font-size: 16px;
       margin: 20px 0;
     }
+    .success-message {
+      color: #00cc00;
+      font-size: 16px;
+      margin: 20px 0;
+    }
     .checkbox-label {
       display: flex;
       align-items: center;
@@ -135,9 +140,27 @@
       width: auto;
       margin-right: 10px;
     }
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loading-screen.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <div class="loading-screen" id="loadingScreen">
+    <div>Loading...</div>
+  </div>
   <div class="container">
     <div class="sidebar">
       <div class="profile">
@@ -160,6 +183,7 @@
           <option value="form3">Form 3</option>
           <option value="form4">Form 4</option>
         </select>
+        <div id="studentsMessage" class="error-message"></div>
         <table id="studentsTable">
           <thead>
             <tr>
@@ -175,9 +199,9 @@
         <div id="editStudentForm" style="display: none; margin-top: 20px;">
           <h3 style="font-size: 20px; color: #333;">Edit Student</h3>
           <input id="editRegNo" type="text" disabled>
-          <input id="editName" type="text" placeholder="Full Name">
+          <input id="editName" type="text" placeholder="Name" required>
           <input id="editPassword" type="password" placeholder="New Password">
-          <select id="editForm">
+          <select id="editForm" required>
             <option value="form1">Form 1</option>
             <option value="form2">Form 2</option>
             <option value="form3">Form 3</option>
@@ -189,17 +213,17 @@
       </div>
       <div id="addStudent" class="section">
         <h1 style="font-size: 28px; color: #333;">Add Student</h1>
-        <input id="newRegNo" type="text" placeholder="Reg No (e.g., AID/00119/025)">
-        <input id="newName" type="text" placeholder="Full Name">
-        <input id="newPassword" type="password" placeholder="Password">
-        <select id="newForm">
+        <input id="newRegNo" type="text" placeholder="Reg No (e.g., AID/00119/025)" required>
+        <input id="newName" type="text" placeholder="Name" required>
+        <input id="newPassword" type="password" placeholder="Password" required>
+        <select id="newForm" required>
           <option value="form1">Form 1</option>
           <option value="form2">Form 2</option>
           <option value="form3">Form 3</option>
           <option value="form4">Form 4</option>
         </select>
-        <input id="newStream" type="text" placeholder="Stream (e.g., victors)">
-        <input id="newTotalFees" type="number" placeholder="Total Expected Fees (KES)">
+        <input id="newStream" type="text" placeholder="Stream (e.g., Victors)" required>
+        <input id="newTotalFees" type="number" placeholder="Total Expected Fees (KES)" required>
         <button onclick="addStudent()">Add Student</button>
         <div id="addStudentMessage" class="error-message"></div>
       </div>
@@ -225,6 +249,7 @@
             <input type="checkbox" id="uploadExam" onchange="updateMarksForm()"> Upload Exam Marks
           </label>
         </div>
+        <div id="existingMarks" style="margin-bottom: 20px;"></div>
         <div id="subjectSelection"></div>
         <div id="marksForm"></div>
         <button onclick="uploadMarks()">Upload Marks</button>
@@ -236,8 +261,8 @@
           <option value="individual">Individual</option>
         </select>
         <select id="announcementStudent" style="display: none;"></select>
-        <input id="announcementTitle" type="text" placeholder="Title">
-        <textarea id="announcementMessage" placeholder="Message"></textarea>
+        <input id="announcementTitle" type="text" placeholder="Title" required>
+        <textarea id="announcementMessage" placeholder="Message" required></textarea>
         <button onclick="addAnnouncement()">Add Announcement</button>
       </div>
     </div>
@@ -259,19 +284,32 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    if (localStorage.getItem("userType") !== "teacher") {
-      window.location.href = "index.html";
-    }
+    const loadingScreen = document.getElementById("loadingScreen");
+
+    auth.onAuthStateChanged(async user => {
+      if (!user || sessionStorage.getItem("userType") !== "teacher") {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      } else {
+        try {
+          console.log("Teacher.html loaded, sessionStorage:", sessionStorage.getItem("userType"), sessionStorage.getItem("username"), user.uid);
+          const teacherEmail = sessionStorage.getItem("username") || "Teacher";
+          const teacherName = teacherEmail.split("@")[0].replace(/\d/g, "");
+          document.getElementById("teacherName").textContent = teacherName;
+          loadingScreen.classList.add("hidden");
+          await loadStudents();
+          await loadMarksForm();
+        } catch (error) {
+          console.error("Auth state error:", error);
+          showMessage("studentsMessage", `Failed to load: ${error.message}`);
+        }
+      }
+    });
 
     const subjects = [
       "English", "Mathematics", "Kiswahili", "Biology", "Chemistry", "Physics",
       "History", "Geography", "CRE", "Business Studies", "Computer Studies"
     ];
-
-    // Display teacher name in the sidebar
-    const teacherEmail = localStorage.getItem("username") || "Teacher";
-    const teacherName = teacherEmail.split("@")[0].replace(/\d/g, "");
-    document.getElementById("teacherName").textContent = teacherName;
 
     function showSection(section) {
       document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
@@ -283,9 +321,7 @@
       messageDiv.textContent = message;
       messageDiv.style.color = isError ? "#ff4444" : "#00cc00";
       messageDiv.style.display = "block";
-      setTimeout(() => {
-        messageDiv.style.display = "none";
-      }, 3000);
+      setTimeout(() => messageDiv.style.display = "none", 3000);
     }
 
     function validateRegNo(regNo) {
@@ -293,9 +329,9 @@
       return !invalidChars.test(regNo);
     }
 
-    function addStudent() {
+    async function addStudent() {
       const regNo = document.getElementById("newRegNo").value.trim();
-      const normalizedRegNo = regNo.replace(/\//g, "");
+      const normalizedRegNo = regNo.replace(/\//g, "_");
       const name = document.getElementById("newName").value.trim();
       const password = document.getElementById("newPassword").value;
       const form = document.getElementById("newForm").value;
@@ -303,56 +339,51 @@
       const totalFees = parseInt(document.getElementById("newTotalFees").value);
 
       if (!regNo || !name || !password || !form || !stream || !totalFees) {
-        showMessage("addStudentMessage", "Please fill in all fields.");
+        showMessage("addStudentMessage", "All fields are required.");
         return;
       }
 
       if (!validateRegNo(normalizedRegNo)) {
-        showMessage("addStudentMessage", "Invalid Reg No format. Avoid characters like '.', '#', '$', '[', or ']'.");
+        showMessage("addStudentMessage", "Invalid Reg No format. Avoid '.', '#', '$', '[', or ']'.");
         return;
       }
 
-      const studentRef = db.ref("users/students/" + normalizedRegNo);
-      studentRef.once("value", (snapshot) => {
+      try {
+        const studentRef = db.ref("users/students/" + normalizedRegNo);
+        const snapshot = await studentRef.once("value");
         if (snapshot.exists()) {
           showMessage("addStudentMessage", "Reg No already exists.");
-        } else {
-          const newStudent = {
-            name: name,
-            password: password,
-            form: form,
-            stream: stream,
-            fees: {
-              totalExpected: totalFees,
-              transactions: []
-            },
-            academics: {}
-          };
-          studentRef.set(newStudent)
-            .then(() => {
-              showMessage("addStudentMessage", "Student added successfully!", false);
-              document.getElementById("newRegNo").value = "";
-              document.getElementById("newName").value = "";
-              document.getElementById("newPassword").value = "";
-              document.getElementById("newStream").value = "";
-              document.getElementById("newTotalFees").value = "";
-              loadStudents();
-            })
-            .catch(error => {
-              showMessage("addStudentMessage", "Failed to add student: " + error.message);
-            });
+          return;
         }
-      }).catch(error => {
-        showMessage("addStudentMessage", "Error checking Reg No: " + error.message);
-      });
+
+        const newStudent = {
+          profile: { name, password },
+          form,
+          stream,
+          fees: { totalExpected: totalFees, transactions: [] },
+          academics: {}
+        };
+        await studentRef.set(newStudent);
+        showMessage("addStudentMessage", "Student added successfully!", false);
+        document.getElementById("newRegNo").value = "";
+        document.getElementById("newName").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newStream").value = "";
+        document.getElementById("newTotalFees").value = "";
+        await loadStudents();
+      } catch (error) {
+        console.error("Add student error:", error);
+        showMessage("addStudentMessage", `Failed to add student: ${error.message}`);
+      }
     }
 
-    function loadStudents() {
+    async function loadStudents() {
       const form = document.getElementById("formSelect").value;
       const studentsBody = document.getElementById("studentsBody");
-      studentsBody.innerHTML = "";
+      studentsBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
 
-      db.ref("users/students").once("value", (snapshot) => {
+      try {
+        const snapshot = await db.ref("users/students").once("value");
         const students = snapshot.val() || {};
         let studentsList = [];
 
@@ -361,13 +392,14 @@
           if (student.form === form) {
             studentsList.push({
               regNo,
-              name: student.name,
+              name: student.profile.name,
               stream: student.stream,
               form: student.form
             });
           }
         });
 
+        studentsBody.innerHTML = "";
         if (studentsList.length === 0) {
           studentsBody.innerHTML = `<tr><td colspan="5">No students found in ${form}.</td></tr>`;
           return;
@@ -383,9 +415,11 @@
             <td><button class="edit-btn" onclick="editStudent('${student.regNo}', '${student.name}', '${student.form}')">Edit</button></td>
           </tr>`;
         });
-      }).catch(error => {
+      } catch (error) {
+        console.error("Load students error:", error);
         studentsBody.innerHTML = `<tr><td colspan="5">Failed to load students: ${error.message}</td></tr>`;
-      });
+        showMessage("studentsMessage", `Error: ${error.message}`);
+      }
     }
 
     function editStudent(regNo, name, form) {
@@ -397,40 +431,37 @@
       document.getElementById("editForm").value = form;
     }
 
-    function saveStudentEdits() {
+    async function saveStudentEdits() {
       const regNo = document.getElementById("editRegNo").value;
-      const normalizedRegNo = regNo.replace(/\//g, "");
+      const normalizedRegNo = regNo.replace(/\//g, "_");
       const name = document.getElementById("editName").value.trim();
       const password = document.getElementById("editPassword").value;
       const form = document.getElementById("editForm").value;
 
       if (!name || !form) {
-        showMessage("editStudentMessage", "Please fill in Name and Form.");
+        showMessage("editStudentMessage", "Name and Form are required.");
         return;
       }
 
-      const updates = { name, form };
-      if (password) {
-        updates.password = password;
-      }
+      try {
+        const updates = { profile: { name }, form };
+        if (password) updates.profile.password = password;
 
-      db.ref(`users/students/${normalizedRegNo}`).update(updates)
-        .then(() => {
-          showMessage("editStudentMessage", "Student updated successfully!", false);
-          document.getElementById("editStudentForm").style.display = "none";
-          loadStudents();
-        })
-        .catch(error => {
-          showMessage("editStudentMessage", "Failed to update student: " + error.message);
-        });
+        await db.ref(`users/students/${normalizedRegNo}`).update(updates);
+        showMessage("editStudentMessage", "Student updated successfully!", false);
+        document.getElementById("editStudentForm").style.display = "none";
+        await loadStudents();
+      } catch (error) {
+        console.error("Save student edits error:", error);
+        showMessage("editStudentMessage", `Failed to update student: ${error.message}`);
+      }
     }
 
     function loadMarksForm() {
       const formSelect = document.getElementById("marksFormSelect");
       const studentSelect = document.getElementById("marksStudentSelect");
-      studentSelect.innerHTML = "";
+      studentSelect.innerHTML = "<option>Loading...</option>";
       const form = formSelect.value;
-      console.log("Loading students for form:", form);
 
       db.ref("users/students").once("value", (snapshot) => {
         const students = snapshot.val() || {};
@@ -441,17 +472,18 @@
           if (student.form === form) {
             studentsList.push({
               regNo,
-              name: student.name,
+              name: student.profile.name,
               stream: student.stream
             });
           }
         });
 
+        studentSelect.innerHTML = "";
         if (studentsList.length === 0) {
           studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
           document.getElementById("subjectSelection").innerHTML = "";
           document.getElementById("marksForm").innerHTML = "<p>No students available to upload marks for.</p>";
-          console.log("No students found in", form);
+          document.getElementById("existingMarks").innerHTML = "";
           return;
         }
 
@@ -460,12 +492,10 @@
         studentsList.forEach(student => {
           studentSelect.innerHTML += `<option value="${student.regNo}|${student.stream}">${student.name} (${student.regNo})</option>`;
         });
-        console.log("Students loaded:", studentsList);
 
         updateMarksForm();
       }).catch(error => {
         document.getElementById("marksForm").innerHTML = `<div class="error-message">Failed to load marks form: ${error.message}</div>`;
-        console.error("Error loading students:", error);
       });
     }
 
@@ -476,28 +506,43 @@
       const studentSelect = document.getElementById("marksStudentSelect");
       const subjectSelection = document.getElementById("subjectSelection");
       const marksForm = document.getElementById("marksForm");
-
-      console.log("Updating marks form. Student selected:", studentSelect.value);
-      console.log("Upload CAT:", uploadCat, "Upload Exam:", uploadExam, "Term:", term);
+      const existingMarksDiv = document.getElementById("existingMarks");
 
       subjectSelection.innerHTML = "";
       marksForm.innerHTML = "";
+      existingMarksDiv.innerHTML = "";
 
       if (!studentSelect.value || studentSelect.value === "") {
-        subjectSelection.innerHTML = "";
         marksForm.innerHTML = "<p>Please select a student to upload marks for.</p>";
-        console.log("No student selected, exiting updateMarksForm.");
         return;
       }
 
       if (!uploadCat && !uploadExam) {
-        subjectSelection.innerHTML = "";
         marksForm.innerHTML = "<p>Please select at least one type of marks to upload (CAT or Exam).</p>";
-        console.log("No mark type selected, exiting updateMarksForm.");
         return;
       }
 
-      console.log("Rendering subject checkboxes...");
+      const [regNo] = studentSelect.value.split("|");
+      const normalizedRegNo = regNo.replace(/\//g, "_");
+      db.ref(`users/students/${normalizedRegNo}/academics/${term}`).once("value", snapshot => {
+        const marksData = snapshot.val() || {};
+        let marksHTML = "<h3 style='font-size: 18px; color: #333;'>Existing Marks</h3>";
+        if (marksData.cat || marksData.exam) {
+          marksHTML += "<table><thead><tr><th>Subject</th><th>CAT</th><th>Exam</th></tr></thead><tbody>";
+          subjects.forEach(subject => {
+            const cat = marksData.cat?.[subject] || "-";
+            const exam = marksData.exam?.[subject] || "-";
+            marksHTML += `<tr><td>${subject}</td><td>${cat}</td><td>${exam}</td></tr>`;
+          });
+          marksHTML += "</tbody></table>";
+        } else {
+          marksHTML += "<p>No marks recorded for this term.</p>";
+        }
+        existingMarksDiv.innerHTML = marksHTML;
+      }).catch(error => {
+        existingMarksDiv.innerHTML = `<div class="error-message">Error loading marks: ${error.message}</div>`;
+      });
+
       let subjectHtml = "<h3 style='font-size: 20px; margin-bottom: 15px; color: #333;'>Select Subjects</h3>";
       subjects.forEach(subject => {
         subjectHtml += `
@@ -506,7 +551,6 @@
           </label>`;
       });
       subjectSelection.innerHTML = subjectHtml;
-      console.log("Subject checkboxes rendered:", subjectHtml);
 
       renderMarksInputs();
     }
@@ -519,30 +563,20 @@
       const marksForm = document.getElementById("marksForm");
       marksForm.innerHTML = "";
 
-      console.log("Rendering marks inputs. Student:", studentSelect.value);
-
       if (!studentSelect.value || studentSelect.value === "") {
         marksForm.innerHTML = "<p>Please select a student to upload marks for.</p>";
-        console.log("No student selected in renderMarksInputs, exiting.");
         return;
       }
 
       if (!uploadCat && !uploadExam) {
         marksForm.innerHTML = "<p>Please select at least one type of marks to upload (CAT or Exam).</p>";
-        console.log("No mark type selected in renderMarksInputs, exiting.");
         return;
       }
 
-      const selectedSubjects = subjects.filter(subject => {
-        const checkbox = document.getElementById(`subject_${subject}`);
-        return checkbox && checkbox.checked;
-      });
-
-      console.log("Selected subjects:", selectedSubjects);
+      const selectedSubjects = subjects.filter(subject => document.getElementById(`subject_${subject}`).checked);
 
       if (selectedSubjects.length === 0) {
         marksForm.innerHTML = "<p>Please select at least one subject to upload marks for.</p>";
-        console.log("No subjects selected, showing message.");
         return;
       }
 
@@ -551,47 +585,38 @@
         selectedSubjects.forEach(subject => {
           marksForm.innerHTML += `<div style="margin-bottom: 15px;">
             <label style="display: block; font-size: 16px; color: #333;">${subject}</label>
-            <input type="number" id="cat_${subject}" placeholder="Enter CAT marks">
+            <input type="number" id="cat_${subject}" placeholder="Enter CAT marks" min="0" max="100">
           </div>`;
         });
-        console.log("CAT input fields rendered for subjects:", selectedSubjects);
       }
       if (uploadExam) {
         marksForm.innerHTML += `<h3 style='font-size: 20px; margin-bottom: 15px; color: #333;'>${term === "term3" ? "Final Exam" : "Exam"}</h3>`;
         selectedSubjects.forEach(subject => {
           marksForm.innerHTML += `<div style="margin-bottom: 15px;">
             <label style="display: block; font-size: 16px; color: #333;">${subject}</label>
-            <input type="number" id="exam_${subject}" placeholder="Enter Exam marks">
+            <input type="number" id="exam_${subject}" placeholder="Enter Exam marks" min="0" max="100">
           </div>`;
         });
-        console.log("Exam input fields rendered for subjects:", selectedSubjects);
       }
     }
 
     function uploadMarks() {
       const studentSelect = document.getElementById("marksStudentSelect");
-      if (!studentSelect.value || studentSelect.value === "") {
+      if (!studentSelect.value) {
         alert("Please select a student to upload marks for.");
-        console.log("Upload aborted: No student selected.");
         return;
       }
 
       const [regNo] = studentSelect.value.split("|");
-      const normalizedRegNo = regNo.replace(/\//g, "");
+      const normalizedRegNo = regNo.replace(/\//g, "_");
       const term = document.getElementById("termSelect").value;
       const uploadCat = document.getElementById("uploadCat").checked;
       const uploadExam = document.getElementById("uploadExam").checked;
 
-      console.log("Uploading marks for student:", normalizedRegNo, "Term:", term);
-
-      const selectedSubjects = subjects.filter(subject => {
-        const checkbox = document.getElementById(`subject_${subject}`);
-        return checkbox && checkbox.checked;
-      });
+      const selectedSubjects = subjects.filter(subject => document.getElementById(`subject_${subject}`).checked);
 
       if (selectedSubjects.length === 0) {
         alert("Please select at least one subject to upload marks for.");
-        console.log("Upload aborted: No subjects selected.");
         return;
       }
 
@@ -602,7 +627,6 @@
           const catMarks = document.getElementById(`cat_${subject}`).value;
           if (catMarks) marks.cat[subject] = parseInt(catMarks);
         });
-        console.log("CAT marks to upload:", marks.cat);
       }
       if (uploadExam) {
         marks.exam = {};
@@ -610,25 +634,20 @@
           const examMarks = document.getElementById(`exam_${subject}`).value;
           if (examMarks) marks.exam[subject] = parseInt(examMarks);
         });
-        console.log("Exam marks to upload:", marks.exam);
       }
 
       if (Object.keys(marks.cat || {}).length === 0 && Object.keys(marks.exam || {}).length === 0) {
         alert("Please enter at least one mark.");
-        console.log("Upload aborted: No marks entered.");
         return;
       }
 
-      console.log("Uploading marks to Firebase at path:", `users/students/${normalizedRegNo}/academics/${term}`);
       db.ref(`users/students/${normalizedRegNo}/academics/${term}`).update(marks)
         .then(() => {
           alert("Marks uploaded successfully!");
-          console.log("Marks uploaded successfully!");
-          loadMarksForm(); // Refresh the form
+          loadMarksForm();
         })
         .catch(error => {
           alert("Failed to upload marks: " + error.message);
-          console.error("Upload failed:", error);
         });
     }
 
@@ -638,19 +657,17 @@
       studentSelect.style.display = typeSelect.value === "individual" ? "block" : "none";
       if (typeSelect.value !== "individual") return;
 
-      studentSelect.innerHTML = "";
+      studentSelect.innerHTML = "<option>Loading...</option>";
       db.ref("users/students").once("value", (snapshot) => {
         const students = snapshot.val() || {};
         let studentsList = [];
 
         Object.keys(students).forEach(regNo => {
           const student = students[regNo];
-          studentsList.push({
-            regNo,
-            name: student.name
-          });
+          studentsList.push({ regNo, name: student.profile.name });
         });
 
+        studentSelect.innerHTML = "";
         if (studentsList.length === 0) {
           studentSelect.innerHTML = `<option value="">No students found.</option>`;
           return;
@@ -679,7 +696,7 @@
         title,
         message,
         date: new Date().toISOString().split("T")[0],
-        teacher: teacherName
+        teacher: document.getElementById("teacherName").textContent
       };
 
       if (type === "general") {
@@ -698,7 +715,7 @@
           alert("Please select a student for individual announcement.");
           return;
         }
-        const normalizedRegNo = regNo.replace(/\//g, "");
+        const normalizedRegNo = regNo.replace(/\//g, "_");
         db.ref(`announcements/individual/${normalizedRegNo}`).push(announcement)
           .then(() => {
             alert("Announcement added successfully!");
@@ -713,107 +730,13 @@
 
     function logout() {
       auth.signOut().then(() => {
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = "index.html";
+      }).catch(error => {
+        console.error("Logout failed:", error);
+        alert("Failed to log out: " + error.message);
       });
     }
-
-    loadStudents();
-    loadMarksForm(); // Ensure the form loads on page load
   </script>
 </body>
 </html>
-// Initialize Firebase (add at the top of script.js, before other functions)
-const firebaseConfig = {
-    apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
-    authDomain: "web-reg-cbf2f.firebaseapp.com",
-    databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
-    projectId: "web-reg-cbf2f",
-    storageBucket: "web-reg-cbf2f.firebasestorage.app",
-    messagingSenderId: "431303341740",
-    appId: "1:431303341740:web:542070e4c471cd7c8ad109",
-    measurementId: "G-164GMVZQY3"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-function teacherAddStudent(event) {
-    event.preventDefault();
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || user.role !== "teacher") {
-        showError("Only teachers can add students.");
-        return;
-    }
-
-    const regNo = document.getElementById("teacherAddStudentRegNo").value.trim().toUpperCase();
-    const name = document.getElementById("teacherAddStudentName").value.trim();
-    const gender = document.getElementById("teacherAddStudentGender").value;
-    const form = document.getElementById("teacherAddStudentForm").value;
-    const sponsor = document.getElementById("teacherAddStudentSponsor").value;
-    const password = document.getElementById("teacherAddStudentPassword").value;
-
-    if (!name || !regNo || !gender || !form || !sponsor || !password) {
-        showError("All fields are required.");
-        return;
-    }
-
-    if (password.length < 6) {
-        showError("Password must be at least 6 characters.");
-        return;
-    }
-
-    if (Object.values(users).some(u => u.id === regNo || u.username === regNo)) {
-        showError("Registration number or username already exists.");
-        return;
-    }
-
-    const newStudent = {
-        username: regNo,
-        password: password,
-        role: "student",
-        id: regNo,
-        name: name,
-        regDetails: `Reg: ${regNo}, Year: ${new Date().getFullYear()}`,
-        academicInfo: `Form ${form}, Stream A`,
-        gender: gender,
-        form: form,
-        sponsor: sponsor
-    };
-
-    const subjects = ["mathematics", "english", "kiswahili", "chemistry", "biology", "physics", "history", "geography", "cre", "business", "agriculture"];
-    const terms = ["term1_cat", "term1_final", "term2_cat", "term2_exam", "term3_exam"];
-    const marks = {};
-    subjects.forEach(subject => {
-        marks[subject] = {};
-        terms.forEach(term => marks[subject][term] = null);
-    });
-
-    try {
-        // Write to Firebase
-        db.ref(`users/students/${regNo}`).set(newStudent).then(() => {
-            // Sync with localStorage
-            users[regNo] = newStudent;
-            studentData[regNo] = {
-                feesPaid: 0,
-                feeStatement: "No payments yet",
-                events: "Term 1: Jan 10 - Apr 15, Sports Day: Mar 20",
-                marks: marks,
-                remarks: "Awaiting marks entry."
-            };
-
-            auditLog.push({ action: `Student added by teacher ${user.id}: ${regNo}`, timestamp: new Date().toISOString() });
-            saveUsers();
-            saveStudentData();
-            saveAuditLog();
-
-            showSuccess("Student added successfully!");
-            document.getElementById("teacherAddStudentForm").reset();
-        }).catch((error) => {
-            console.error("Firebase error:", error);
-            showError("Failed to add student to Firebase: " + error.message);
-        });
-    } catch (error) {
-        console.error("Error adding student:", error);
-        showError("Failed to add student: " + error.message);
-    }
-}

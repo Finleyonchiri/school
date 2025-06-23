@@ -3,178 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Portal - St. George's Secondary School</title>
+  <title>Student Dashboard - BORABU TTC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
+    * {
+      padding: 0;
       margin: 0;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+    body {
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
     }
     .container {
-      display: flex;
-      min-height: 100vh;
-    }
-    .sidebar {
-      width: 250px;
-      background: linear-gradient(to bottom, #6b48ff, #ff6f61);
-      color: #fff;
-      padding: 20px;
-      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-    }
-    .sidebar h2 {
-      font-size: 24px;
-      margin-bottom: 30px;
-      text-align: center;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    }
-    .sidebar .profile {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    .sidebar .profile img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid #ffd700;
-      margin-bottom: 10px;
-    }
-    .sidebar a, .sidebar button {
-      display: block;
-      color: #fff;
-      padding: 15px;
-      text-decoration: none;
-      background: rgba(255, 255, 255, 0.1);
-      margin-bottom: 10px;
-      border-radius: 8px;
-      font-size: 16px;
-      text-align: center;
-      transition: background 0.3s;
-    }
-    .sidebar a:hover, .sidebar button:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    .main-content {
-      flex: 1;
+      background-color: #ffffff;
       padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+    }
+    h1 {
+      color: #1a3c6b;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #3f3554;
+      margin: 20px 0 10px;
+    }
+    p, li {
+      color: #3f3554;
+      font-size: 1.1em;
+      margin-bottom: 10px;
     }
     .section {
-      display: none;
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
-    }
-    .section.active {
-      display: block;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: linear-gradient(145deg, #ffffff, #e6e6e6);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      border: 2px solid #ffd700;
-    }
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-      color: #333;
-    }
-    .card p {
-      margin: 0;
-      font-size: 16px;
-      color: #666;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
+      padding: 15px;
       border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
+      border-radius: 5px;
     }
-    th {
-      background: #6b48ff;
-      color: #fff;
+    button {
+      font-size: 1.1em;
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      background-color: #4a90e2;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
-    tr:nth-child(even) {
-      background: #f9f9f9;
+    button:hover {
+      background-color: #1a3c6b;
     }
-    .error-message {
-      color: #ff4444;
-      font-size: 16px;
-      margin: 20px 0;
+    .error {
+      color: #d32f2f;
+      text-align: center;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="sidebar">
-      <h2>Student Portal</h2>
-      <div class="profile">
-        <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
-        <p id="studentName"></p>
-      </div>
-      <a href="#" onclick="showSection('dashboard')">Dashboard</a>
-      <a href="#" onclick="showSection('academics')">Academics</a>
-      <a href="#" onclick="showSection('fees')">Fees</a>
-      <a href="#" onclick="showSection('announcements')">Announcements</a>
-      <a href="#" onclick="showSection('events')">Events</a>
-      <button onclick="logout()">Logout</button>
+    <h1>Welcome, <span id="studentName">Student</span>!</h1>
+    <div class="section">
+      <h2>Profile</h2>
+      <p>Registration Number: <span id="regNo">Not logged in</span></p>
+      <p>Name: <span id="name">N/A</span></p>
+      <p>Year: <span id="year">N/A</span></p>
+      <p>Stream: <span id="stream">N/A</span></p>
     </div>
-    <div class="main-content">
-      <div id="dashboard" class="section active">
-        <h1 style="font-size: 28px; color: #333;">Dashboard</h1>
-        <div class="dashboard" id="dashboardCards"></div>
-      </div>
-      <div id="academics" class="section">
-        <h1 style="font-size: 28px; color: #333;">Academics</h1>
-        <table id="marksTable">
-          <thead>
-            <tr>
-              <th>Term</th>
-              <th>Subject</th>
-              <th>CAT</th>
-              <th>Exam</th>
-            </tr>
-          </thead>
-          <tbody id="marksBody"></tbody>
-        </table>
-      </div>
-      <div id="fees" class="section">
-        <h1 style="font-size: 28px; color: #333;">Fees</h1>
-        <p id="feesBalance"></p>
-        <table id="transactionsTable">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody id="transactionsBody"></tbody>
-        </table>
-      </div>
-      <div id="announcements" class="section">
-        <h1 style="font-size: 28px; color: #333;">Announcements</h1>
-        <div id="announcementsList"></div>
-      </div>
-      <div id="events" class="section">
-        <h1 style="font-size: 28px; color: #333;">Events</h1>
-        <div id="eventsList"></div>
-      </div>
+    <div class="section">
+      <h2>Marks</h2>
+      <ul id="marksList">
+        <li>No marks available</li>
+      </ul>
     </div>
+    <div class="section">
+      <h2>Fees</h2>
+      <p>Total: <span id="feesTotal">N/A</span></p>
+      <p>Paid: <span id="feesPaid">N/A</span></p>
+      <p>Balance: <span id="feesBalance">N/A</span></p>
+    </div>
+    <div id="errorMessage" class="error"></div>
+    <button onclick="logout()">Logout</button>
   </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
@@ -190,144 +116,66 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    if (localStorage.getItem("userType") !== "student") {
-      window.location.href = "index.html";
+    function showError(message) {
+      const errorDiv = document.getElementById("errorMessage");
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+      setTimeout(() => { errorDiv.style.display = "none"; }, 5000);
     }
 
-    function showSection(section) {
-      document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
-      document.getElementById(section).classList.add("active");
-    }
+    window.onload = function() {
+      const userType = sessionStorage.getItem("userType");
+      const regNo = sessionStorage.getItem("regNo");
+      const studentName = sessionStorage.getItem("studentName");
+      console.log("Student.html loaded, sessionStorage:", userType, regNo, studentName);
 
-    function loadDashboard() {
-      const regNo = localStorage.getItem("regNo");
-      const normalizedRegNo = regNo.replace(/\//g, "");
-      const studentRef = db.ref("users/students/" + normalizedRegNo);
-      const announcementsRef = db.ref("announcements");
-      const eventsRef = db.ref("events");
+      if (userType !== "student" || !regNo) {
+        console.log("Redirecting to index.html: Invalid session");
+        window.location.href = "index.html";
+        return;
+      }
 
-      studentRef.once("value", (studentSnapshot) => {
-        if (!studentSnapshot.exists()) {
-          document.querySelector(".main-content").innerHTML = `<div class="error-message">Student data not found. Please log in again.</div>`;
-          return;
+      document.getElementById("studentName").textContent = studentName || "Student";
+      document.getElementById("regNo").textContent = regNo;
+
+      const studentRef = db.ref("users/students/" + regNo);
+      studentRef.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          // Profile
+          document.getElementById("name").textContent = data.profile.name || "N/A";
+          document.getElementById("year").textContent = data.profile.year || "N/A";
+          document.getElementById("stream").textContent = data.profile.stream || "N/A";
+
+          // Marks
+          const marksList = document.getElementById("marksList");
+          marksList.innerHTML = "";
+          if (data.marks && data.marks.term1) {
+            for (const [subject, score] of Object.entries(data.marks.term1)) {
+              const li = document.createElement("li");
+              li.textContent = `${subject}: ${score}`;
+              marksList.appendChild(li);
+            }
+          } else {
+            marksList.innerHTML = "<li>No marks available</li>";
+          }
+
+          // Fees
+          document.getElementById("feesTotal").textContent = data.fees?.total || "N/A";
+          document.getElementById("feesPaid").textContent = data.fees?.paid || "N/A";
+          document.getElementById("feesBalance").textContent = data.fees?.balance || "N/A";
+        } else {
+          showError("Student data not found.");
         }
-
-        const student = studentSnapshot.val();
-        document.getElementById("studentName").textContent = student.name;
-
-        // Calculate total marks
-        let totalMarks = 0;
-        const academics = student.academics || {};
-        Object.keys(academics).forEach(term => {
-          const termData = academics[term];
-          const catSubjects = termData.cat ? Object.keys(termData.cat).length : 0;
-          const examSubjects = termData.exam ? Object.keys(termData.exam).length : 0;
-          totalMarks += catSubjects + examSubjects;
-        });
-
-        // Calculate fees paid
-        const transactions = student.fees?.transactions ? Object.values(student.fees.transactions) : [];
-        const feesPaid = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-        const feesBalance = (student.fees?.totalExpected || 0) - feesPaid;
-
-        announcementsRef.once("value", (announcementsSnapshot) => {
-          const announcements = announcementsSnapshot.val() || {};
-          const generalAnnouncements = announcements.general ? Object.values(announcements.general) : [];
-          const individualAnnouncements = announcements.individual?.[normalizedRegNo] ? Object.values(announcements.individual[normalizedRegNo]) : [];
-          const announcementsCount = generalAnnouncements.length + individualAnnouncements.length;
-
-          eventsRef.once("value", (eventsSnapshot) => {
-            const events = eventsSnapshot.val() ? Object.values(eventsSnapshot.val()) : [];
-
-            const dashboardCards = `
-              <div class="card">
-                <h3>Grades Entered</h3>
-                <p>${totalMarks}</p>
-              </div>
-              <div class="card">
-                <h3>Fees Balance</h3>
-                <p>KES ${feesBalance}</p>
-              </div>
-              <div class="card">
-                <h3>Unread Announcements</h3>
-                <p>${announcementsCount}</p>
-              </div>
-              <div class="card">
-                <h3>Upcoming Event</h3>
-                <p>${events.length > 0 ? events[0].title : "None"}</p>
-              </div>
-            `;
-            document.getElementById("dashboardCards").innerHTML = dashboardCards;
-
-            let marksHtml = "";
-            Object.keys(student.academics || {}).forEach(term => {
-              const termData = student.academics[term];
-              const allSubjects = new Set([
-                ...(termData.cat ? Object.keys(termData.cat) : []),
-                ...(termData.exam ? Object.keys(termData.exam) : [])
-              ]);
-              allSubjects.forEach(subject => {
-                const catMark = termData.cat?.[subject] || "-";
-                const examMark = termData.exam?.[subject] || "-";
-                marksHtml += `<tr>
-                  <td>${term}</td>
-                  <td>${subject}</td>
-                  <td>${catMark}</td>
-                  <td>${examMark}</td>
-                </tr>`;
-              });
-            });
-            document.getElementById("marksBody").innerHTML = marksHtml || `<tr><td colspan="4">No marks available.</td></tr>`;
-
-            document.getElementById("feesBalance").textContent = `Total Balance: KES ${feesBalance}`;
-            let transactionsHtml = "";
-            transactions.forEach(t => {
-              transactionsHtml += `<tr>
-                <td>${t.date}</td>
-                <td>KES ${t.amount}</td>
-              </tr>`;
-            });
-            document.getElementById("transactionsBody").innerHTML = transactionsHtml || "<tr><td colspan='2'>No transactions available.</td></tr>";
-
-            let announcementsHtml = "";
-            generalAnnouncements.forEach(a => {
-              const postedBy = a.teacher || a.accountant || "Unknown";
-              announcementsHtml += `<div style="margin-bottom: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                <h3 style="margin: 0 0 10px; color: #333;">${a.title}</h3>
-                <p style="margin: 0; color: #666;">${a.message}</p>
-                <p style="margin: 5px 0 0; font-size: 14px; color: #999;">Posted by: ${postedBy} on ${a.date}</p>
-              </div>`;
-            });
-            individualAnnouncements.forEach(a => {
-              const postedBy = a.teacher || a.accountant || "Unknown";
-              announcementsHtml += `<div style="margin-bottom: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                <h3 style="margin: 0 0 10px; color: #333;">${a.title}</h3>
-                <p style="margin: 0; color: #666;">${a.message}</p>
-                <p style="margin: 5px 0 0; font-size: 14px; color: #999;">Posted by: ${postedBy} on ${a.date}</p>
-              </div>`;
-            });
-            document.getElementById("announcementsList").innerHTML = announcementsHtml || "<p>No announcements available.</p>";
-
-            let eventsHtml = "";
-            events.forEach(e => {
-              eventsHtml += `<div style="margin-bottom: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-                <h3 style="margin: 0 0 10px; color: #333;">${e.title}</h3>
-                <p style="margin: 0; color: #666;">${e.description}</p>
-                <p style="margin: 5px 0 0; font-size: 14px; color: #999;">${e.date}</p>
-              </div>`;
-            });
-            document.getElementById("eventsList").innerHTML = eventsHtml || "<p>No events available.</p>";
-          });
-        });
-      }).catch(error => {
-        document.querySelector(".main-content").innerHTML = `<div class="error-message">Failed to load data: ${error.message}</div>`;
+      }).catch((error) => {
+        showError("Failed to load data: " + error.message);
+        console.log("Error loading student data:", error);
       });
-    }
-
-    loadDashboard();
+    };
 
     function logout() {
-      localStorage.clear();
+      sessionStorage.clear();
+      console.log("Logged out, redirecting to index.html");
       window.location.href = "index.html";
     }
   </script>

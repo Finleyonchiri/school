@@ -3,104 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Dashboard - BORABU TTC</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Student Portal - Borabu TTC</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
     body {
-      background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
       min-height: 100vh;
-      padding: 20px;
     }
     .container {
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 800px;
+      display: flex;
+      flex-direction: column;
     }
-    h1 {
-      color: #1a3c6b;
-      margin-bottom: 20px;
+    .sidebar {
+      width: 100%;
+      background: linear-gradient(to bottom, #6b48ff, #ff6f61);
+      color: #fff;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-    h2 {
-      color: #3f3554;
-      margin: 20px 0 10px;
+    .sidebar .profile {
+      margin-bottom: 20px;
     }
-    p, li {
-      color: #3f3554;
-      font-size: 1.1em;
+    .sidebar .profile img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid #ffd700;
       margin-bottom: 10px;
     }
-    .section {
+    .sidebar h2 {
+      font-size: 20px;
       margin-bottom: 20px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    .sidebar a {
+      display: block;
+      color: #fff;
+      padding: 12px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .main-content {
+      flex: 1;
       padding: 15px;
+    }
+    .section {
+      display: none;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 15px;
+    }
+    .section.active {
+      display: block;
+    }
+    h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #6b48ff;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .card {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
       border: 1px solid #ddd;
-      border-radius: 5px;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #6b48ff;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .announcement {
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      transition: background 0.3s ease;
+    }
+    .announcement.unread {
+      background: #e6f0fa;
+      border-left: 4px solid #6b48ff;
+    }
+    .announcement.read {
+      background: #f9f9f9;
+    }
+    .mark-read {
+      background: #ff6f61;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s ease;
+    }
+    .mark-read:hover {
+      background: #ff9f61;
     }
     button {
-      font-size: 1.1em;
-      padding: 10px 20px;
-      border-radius: 25px;
+      padding: 10px;
+      background: linear-gradient(to right, #6b48ff, #ff6f61);
+      color: #fff;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
-      background-color: #4a90e2;
-      color: #ffffff;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-top: 20px;
-      transition: background-color 0.3s;
+      font-size: 14px;
       display: block;
-      margin-left: auto;
-      margin-right: auto;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 200px;
     }
     button:hover {
-      background-color: #1a3c6b;
+      background: linear-gradient(to right, #ff6f61, #6b48ff);
     }
-    .error {
-      color: #d32f2f;
-      text-align: center;
-      display: none;
+    .error-message {
+      color: #ff4444;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+    @media (min-width: 769px) {
+      .container {
+        flex-direction: row;
+      }
+      .sidebar {
+        width: 250px;
+        text-align: left;
+      }
+      .sidebar .profile img {
+        width: 80px;
+        height: 80px;
+      }
+      .sidebar h2 {
+        font-size: 24px;
+      }
+      .sidebar a {
+        font-size: 16px;
+        padding: 15px;
+      }
+      .main-content {
+        padding: 30px;
+      }
+      .section {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      .card {
+        padding: 15px;
+      }
+      table {
+        font-size: 16px;
+      }
+      th, td {
+        padding: 10px;
+      }
+      .announcement {
+        padding: 15px;
+      }
+      .mark-read {
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+      button {
+        padding: 12px;
+        font-size: 16px;
+        max-width: none;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Welcome, <span id="studentName">Student</span>!</h1>
-    <div class="section">
-      <h2>Profile</h2>
-      <p>Registration Number: <span id="regNo">Not logged in</span></p>
-      <p>Name: <span id="name">N/A</span></p>
-      <p>Year: <span id="year">N/A</span></p>
-      <p>Stream: <span id="stream">N/A</span></p>
+    <div class="sidebar">
+      <div class="profile">
+        <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
+        <p id="studentName"></p>
+      </div>
+      <h2>Student Portal</h2>
+      <a href="#" onclick="showSection('profile')">Profile</a>
+      <a href="#" onclick="showSection('marks')">Marks</a>
+      <a href="#" onclick="showSection('fees')">Fees</a>
+      <a href="#" onclick="showSection('payFees')">Pay Fees</a>
+      <a href="#" onclick="showSection('announcements')">Announcements</a>
+      <button onclick="logout()">Logout</button>
     </div>
-    <div class="section">
-      <h2>Marks</h2>
-      <ul id="marksList">
-        <li>No marks available</li>
-      </ul>
+    <div class="main-content">
+      <div id="profile" class="section active">
+        <h1>Profile</h1>
+        <div class="card">
+          <p>Admission Number: <span id="regNo"></span></p>
+          <p>Name: <span id="name">N/A</span></p>
+          <p>Year: <span id="year">N/A</span></p>
+          <p>Stream: <span id="stream">N/A</span></p>
+          <p>Gender: <span id="gender">N/A</span></p>
+          <p>Sponsor: <span id="sponsor">N/A</span></p>
+          <p>Parent Name: <span id="parentName">N/A</span></p>
+          <p>Parent Phone: <span id="parentPhone">N/A</span></p>
+        </div>
+      </div>
+      <div id="marks" class="section">
+        <h1>Marks</h1>
+        <div class="card">
+          <table id="marksTable">
+            <thead>
+              <tr>
+                <th>Term</th>
+                <th>Subject</th>
+                <th>CAT Score</th>
+                <th>Exam Score</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="marksBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="fees" class="section">
+        <h1>Fees</h1>
+        <div class="card">
+          <p>Total: <span id="feesTotal">N/A</span></p>
+          <p>Paid: <span id="feesPaid">N/A</span></p>
+          <p>Balance: <span id="feesBalance">N/A</span></p>
+          <p>Statement: <span id="feesStatement">N/A</span></p>
+          <table id="transactionsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Payer</th>
+                <th>Transaction Code</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="payFees" class="section">
+        <h1>Pay Fees</h1>
+        <div class="card">
+          <p>Your fee payments are meticulously recorded by our dedicated accounts team to ensure accuracy and transparency. Should you encounter any issues with fee reflections, payment processing, or delayed STK push notifications, please visit the Accounts Office for prompt assistance. After every successful payment, we kindly request you to contact the Accounts Office to confirm receipt. Thank you for your cooperation!</p>
+          <button onclick="window.open('https://payment.intasend.com/pay/b90e1c19-33da-4b7d-a654-c4fb72eb9ea7/', '_blank')">Pay Now</button>
+        </div>
+      </div>
+      <div id="announcements" class="section">
+        <h1>Announcements</h1>
+        <div class="card">
+          <div id="announcementsList"></div>
+        </div>
+      </div>
     </div>
-    <div class="section">
-      <h2>Fees</h2>
-      <p>Total: <span id="feesTotal">N/A</span></p>
-      <p>Paid: <span id="feesPaid">N/A</span></p>
-      <p>Balance: <span id="feesBalance">N/A</span></p>
-    </div>
-    <div id="errorMessage" class="error"></div>
-    <button onclick="logout()">Logout</button>
   </div>
+  <div id="errorMessage" class="error-message"></div>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
@@ -116,11 +304,28 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    function showSection(section) {
+      document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
+      document.getElementById(section).classList.add("active");
+    }
+
     function showError(message) {
       const errorDiv = document.getElementById("errorMessage");
       errorDiv.textContent = message;
       errorDiv.style.display = "block";
       setTimeout(() => { errorDiv.style.display = "none"; }, 5000);
+    }
+
+    function getUserNameByEmail(email, role) {
+      return db.ref(`users/${role}`).once("value").then(snapshot => {
+        const users = snapshot.val() || {};
+        for (let key in users) {
+          if (users[key].email === email || users[key].email === email + ".stacc@moke.ac") {
+            return users[key].name || email;
+          }
+        }
+        return email;
+      }).catch(() => email);
     }
 
     window.onload = function() {
@@ -136,34 +341,93 @@
       }
 
       document.getElementById("studentName").textContent = studentName || "Student";
-      document.getElementById("regNo").textContent = regNo;
+      document.getElementById("regNo").textContent = regNo.replace(/_/g, "/");
 
-      const studentRef = db.ref("users/students/" + regNo);
+      const studentRef = db.ref("users/students/" + regNo.replace(/\//g, "_"));
       studentRef.once("value", (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           // Profile
-          document.getElementById("name").textContent = data.profile.name || "N/A";
-          document.getElementById("year").textContent = data.profile.year || "N/A";
-          document.getElementById("stream").textContent = data.profile.stream || "N/A";
+          const profile = data.profile || {};
+          document.getElementById("name").textContent = profile.name || data.name || "N/A";
+          document.getElementById("year").textContent = profile.year || data.form?.replace("form", "Year ") || "N/A";
+          document.getElementById("stream").textContent = profile.stream || data.stream || "N/A";
+          document.getElementById("gender").textContent = profile.gender || data.gender || "N/A";
+          document.getElementById("sponsor").textContent = profile.sponsor || data.sponsor || "N/A";
+          document.getElementById("parentName").textContent = profile.parentName || data.parentName || "N/A";
+          document.getElementById("parentPhone").textContent = profile.parentPhone || data.parentPhone || "N/A";
 
           // Marks
-          const marksList = document.getElementById("marksList");
-          marksList.innerHTML = "";
-          if (data.marks && data.marks.term1) {
-            for (const [subject, score] of Object.entries(data.marks.term1)) {
-              const li = document.createElement("li");
-              li.textContent = `${subject}: ${score}`;
-              marksList.appendChild(li);
+          const marksBody = document.getElementById("marksBody");
+          marksBody.innerHTML = "";
+          const terms = ["term1"];
+          let hasMarks = false;
+          terms.forEach(term => {
+            const termData = data.marks?.[term] || data.academics?.[term];
+            if (termData) {
+              hasMarks = true;
+              for (const [subject, catScore] of Object.entries(termData.cat || {})) {
+                const examScore = termData.exam?.[subject] || (termData[subject] || "-");
+                const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
+                marksBody.innerHTML += `<tr>
+                  <td>${term.replace("term", "Term ")}</td>
+                  <td>${subject}</td>
+                  <td>${catScore !== undefined ? catScore : "-"}</td>
+                  <td>${examScore !== undefined ? examScore : "-"}</td>
+                  <td>${grade}</td>
+                </tr>`;
+              }
             }
-          } else {
-            marksList.innerHTML = "<li>No marks available</li>";
+          });
+          if (!hasMarks) {
+            marksBody.innerHTML = "<tr><td colspan='5'>No marks available</td></tr>";
           }
 
           // Fees
-          document.getElementById("feesTotal").textContent = data.fees?.total || "N/A";
-          document.getElementById("feesPaid").textContent = data.fees?.paid || "N/A";
-          document.getElementById("feesBalance").textContent = data.fees?.balance || "N/A";
+          const feesData = data.fees || {};
+          const total = feesData.total || feesData.totalExpected || 0;
+          const paidFromDb = feesData.paid || 0;
+          const transactions = feesData.transactions || [];
+          let totalPaid = paidFromDb;
+          if (Array.isArray(transactions)) {
+            totalPaid += transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+          } else if (typeof transactions === "object") {
+            totalPaid += Object.values(transactions).reduce((sum, tx) => sum + (tx.amount || 0), 0);
+          }
+          const balanceFromDb = feesData.balance !== undefined ? feesData.balance : null;
+          const calculatedBalance = Math.max(0, total - totalPaid);
+          const balance = balanceFromDb !== null ? balanceFromDb : calculatedBalance;
+          const statement = feesData.statement || "N/A";
+          console.log(`Fees - Total: ${total}, Paid (DB: ${paidFromDb}, Total: ${totalPaid}), Balance (DB: ${balanceFromDb}, Calc: ${calculatedBalance}, Final: ${balance})`);
+          document.getElementById("feesTotal").textContent = total.toLocaleString() || "N/A";
+          document.getElementById("feesPaid").textContent = totalPaid.toLocaleString() || "N/A";
+          document.getElementById("feesBalance").textContent = balance.toLocaleString() || "N/A";
+          document.getElementById("feesStatement").textContent = statement;
+
+          const transactionsBody = document.getElementById("transactionsBody");
+          transactionsBody.innerHTML = "";
+          if (Array.isArray(transactions)) {
+            transactions.forEach(tx => {
+              transactionsBody.innerHTML += `<tr>
+                <td>${tx.date || "-"}</td>
+                <td>${tx.amount || "0"}</td>
+                <td>${tx.method || "-"}</td>
+                <td>${tx.payer || "-"}</td>
+                <td>${tx.transactionCode || tx.mpesaCode || "-"}</td>
+              </tr>`;
+            });
+          } else if (typeof transactions === "object") {
+            Object.values(transactions).forEach(tx => {
+              transactionsBody.innerHTML += `<tr>
+                <td>${tx.date || "-"}</td>
+                <td>${tx.amount || "0"}</td>
+                <td>${tx.method || "-"}</td>
+                <td>${tx.payer || "-"}</td>
+                <td>${tx.transactionCode || tx.mpesaCode || "-"}</td>
+              </tr>`;
+            });
+          }
+
         } else {
           showError("Student data not found.");
         }
@@ -171,7 +435,63 @@
         showError("Failed to load data: " + error.message);
         console.log("Error loading student data:", error);
       });
+
+      // Announcements
+      const normalizedRegNo = regNo.replace(/\//g, "_");
+      db.ref("announcements").once("value", (snapshot) => {
+        const generalSnaps = ["ann1", "ann2", "ann3"].map(key => snapshot.child(key).val()).filter(s => s);
+        const individualSnap = snapshot.child("individual").child(normalizedRegNo).val() || {};
+        let announcements = [];
+
+        Promise.all(generalSnaps.map(snap => {
+          if (snap && snap.author) {
+            return getUserNameByEmail(snap.author + ".stacc@moke.ac", snap.role === "accountant" ? "accountants" : "teachers").then(name => {
+              announcements.push({ ...snap, key: snap.key || "ann1", type: "general", author: name });
+            });
+          }
+        })).then(() => {
+          Object.keys(individualSnap).forEach(key => {
+            if (individualSnap[key].sender) {
+              getUserNameByEmail(individualSnap[key].sender, "teachers").then(name => {
+                announcements.push({ ...individualSnap[key], key, type: "individual", sender: name });
+              });
+            }
+          });
+
+          const announcementsList = document.getElementById("announcementsList");
+          announcementsList.innerHTML = "";
+          if (announcements.length === 0) {
+            announcementsList.innerHTML = "<p>No announcements available.</p>";
+            return;
+          }
+
+          announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
+          announcements.forEach(ann => {
+            const isRead = localStorage.getItem(`announcement_${ann.key}_${normalizedRegNo}`) === "read";
+            const maker = ann.type === "general" ? ann.author : ann.sender;
+            const div = document.createElement("div");
+            div.className = `announcement ${isRead ? "read" : "unread"}`;
+            div.innerHTML = `
+              <h3>${ann.title || ann.text || ann.message} (${ann.date})</h3>
+              <p>${ann.message || ann.text}</p>
+              <p><strong>By:</strong> ${maker || "Unknown"}</p>
+              ${ann.type === "individual" ? "<p><strong>To:</strong> You</p>" : ""}
+              <button class="mark-read" onclick="markAsRead('${ann.key}')">Mark as Read</button>
+            `;
+            announcementsList.appendChild(div);
+          });
+        });
+      }).catch((error) => {
+        showError("Failed to load announcements: " + error.message);
+        console.log("Error loading announcements:", error);
+      });
     };
+
+    function markAsRead(key) {
+      const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
+      localStorage.setItem(`announcement_${key}_${regNo}`, "read");
+      window.onload();
+    }
 
     function logout() {
       sessionStorage.clear();

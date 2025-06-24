@@ -6,171 +6,168 @@
   <title>Student Portal - Borabu TTC</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- For icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #e0f7fa, #f8e1e1); /* Teal to soft pink gradient */
+      background: linear-gradient(135deg, #e0f7fa, #f8e1e1);
       min-height: 100vh;
       color: #2d2d2d;
     }
     .container {
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      height: 100vh;
+      overflow: hidden;
     }
-    /* Mobile Menu */
-    .top-menu {
-      display: none;
-      background: #00695c; /* Teal */
-      padding: 10px;
-      position: sticky;
+    .header {
+      background: #00695c;
+      color: #fff;
+      padding: 15px 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      position: fixed;
       top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .top-menu {
+      position: fixed;
+      top: 70px;
+      left: 10px;
       z-index: 1000;
     }
     .menu-toggle {
       font-size: 24px;
       color: #fff;
-      background: none;
+      background: #00695c;
       border: none;
+      border-radius: 5px;
+      padding: 8px 12px;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .menu-toggle:hover {
+      transform: scale(1.1);
     }
     .menu-content {
       display: none;
-      flex-direction: column;
+      position: absolute;
+      top: 40px;
+      left: 0;
       background: #00695c;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 200px;
     }
-    .menu-content a {
-      color: #fff;
-      padding: 12px;
-      text-decoration: none;
-      font-size: 16px;
-    }
-    .menu-content a:hover {
-      background: #004d40;
-    }
-    .sidebar {
-      width: 100%;
-      background: linear-gradient(to bottom, #00695c, #004d40); /* Teal gradient */
-      color: #fff;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-    .sidebar .profile {
-      margin-bottom: 20px;
-    }
-    .sidebar .profile img {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: 4px solid #ffd700; /* Gold border */
-      margin-bottom: 10px;
-      transition: transform 0.3s ease;
-    }
-    .sidebar .profile img:hover {
-      transform: scale(1.1);
-    }
-    .sidebar h2 {
-      font-size: 22px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    .sidebar a {
+    .menu-content.active {
       display: block;
+    }
+    .menu-content a, .menu-content button {
       color: #fff;
-      padding: 14px;
+      padding: 12px 20px;
       text-decoration: none;
-      background: rgba(255, 255, 255, 0.15);
-      margin-bottom: 12px;
-      border-radius: 10px;
+      display: block;
       font-size: 16px;
       font-weight: 500;
-      transition: background 0.3s ease, transform 0.2s ease;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
-    .sidebar a:hover {
-      background: #ffd700; /* Gold hover */
-      color: #004d40;
-      transform: translateX(5px);
+    .menu-content a:hover, .menu-content button:hover {
+      background: #004d40;
     }
     .main-content {
       flex: 1;
-      padding: 20px;
+      padding: 90px 15px 15px;
+      overflow-y: auto;
+    }
+    .quote {
+      background: #e0f2f1;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px;
+      text-align: center;
+      font-style: italic;
+      color: #00695c;
+      border-left: 4px solid #ffd700;
     }
     .section {
       display: none;
       background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-      border-left: 5px solid #ff7043; /* Coral accent */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      border-left: 4px solid #ff7043;
       animation: fadeIn 0.5s ease-in;
     }
     .section.active {
       display: block;
     }
     h1 {
-      font-size: 28px;
-      color: #00695c; /* Teal */
-      margin-bottom: 15px;
+      font-size: 26px;
+      color: #00695c;
+      margin-bottom: 12px;
       font-weight: 700;
-      border-bottom: 2px solid #ffd700; /* Gold line */
+      border-bottom: 2px solid #ffd700;
       padding-bottom: 5px;
     }
     h2 {
-      color: #ff7043; /* Coral */
-      font-size: 20px;
-      margin-bottom: 10px;
+      color: #ff7043;
+      font-size: 18px;
+      margin-bottom: 8px;
       font-weight: 600;
     }
     .card {
       background: #f5f5f5;
       padding: 15px;
       border-radius: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       border: 1px solid #e0e0e0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 15px;
+      margin-top: 8px;
+      font-size: 14px;
     }
     th, td {
-      border: 2px solid #b0bec5; /* Light blue-gray */
-      padding: 10px;
+      border: 2px solid #b0bec5;
+      padding: 8px;
       text-align: left;
     }
     th {
-      background: #ffca28; /* Amber */
+      background: #ffca28;
       color: #fff;
       font-weight: 600;
     }
     tr:nth-child(even) {
-      background: #eceff1; /* Light gray */
+      background: #eceff1;
     }
     .fees-highlight {
       font-weight: 700;
       color: #00695c;
-      background: #e0f2f1; /* Light teal */
+      background: #e0f2f1;
       padding: 5px 10px;
       border-radius: 5px;
       display: inline-block;
     }
     .announcement {
-      background: #fff3e0; /* Light orange */
-      padding: 15px;
-      border-radius: 8px;
-      margin: 10px 0;
+      background: #fff3e0;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
       border-left: 4px solid #ff7043;
       transition: transform 0.3s ease;
     }
     .announcement:hover {
-      transform: translateX(10px);
+      transform: translateX(8px);
     }
     .announcement.unread {
       background: #ffe0b2;
@@ -180,150 +177,189 @@
       background: #fff3e0;
     }
     .mark-read {
-      background: #ff7043; /* Coral */
+      background: #ff7043;
       color: #fff;
       border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
+      padding: 6px 12px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 12px;
       transition: background 0.3s ease;
     }
     .mark-read:hover {
-      background: #f4511e; /* Darker coral */
+      background: #f4511e;
     }
     button {
-      padding: 12px 20px;
-      background: linear-gradient(to right, #00695c, #ff7043); /* Teal to coral */
+      padding: 10px 18px;
+      background: linear-gradient(to right, #00695c, #ff7043);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 500;
-      transition: transform 0.3s ease, background 0.3s ease;
+      transition: transform 0.3s ease;
     }
     button:hover {
       transform: scale(1.05);
-      background: linear-gradient(to right, #ff7043, #00695c);
     }
     .error-message {
-      color: #d32f2f; /* Red */
-      font-size: 15px;
-      margin: 10px 0;
-      padding: 10px;
-      background: #ffebee; /* Light red */
-      border-radius: 5px;
+      color: #d32f2f;
+      font-size: 14px;
+      margin: 10px;
+      padding: 8px;
+      background: #ffebee;
+      border-radius: 4px;
     }
-    /* Payment Section Styling */
     .payment-center {
       text-align: center;
-      padding: 20px;
-      background: #fffde7; /* Light yellow */
-      border-radius: 12px;
-      border: 2px dashed #ffca28; /* Amber */
+      padding: 15px;
+      background: #fffde7;
+      border-radius: 10px;
+      border: 2px dashed #ffca28;
     }
     .payment-center h1 {
-      font-size: 30px;
+      font-size: 28px;
       color: #ff7043;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     }
     .payment-assurance {
       list-style: none;
       padding: 0;
-      margin: 15px 0;
+      margin: 12px 0;
     }
     .payment-assurance li {
-      margin: 10px 0;
-      font-size: 16px;
+      margin: 8px 0;
+      font-size: 15px;
       color: #00695c;
       display: flex;
       align-items: center;
     }
     .payment-assurance li i {
-      color: #4caf50; /* Green for ticks */
-      margin-right: 10px;
-      font-size: 18px;
+      color: #4caf50;
+      margin-right: 8px;
+      font-size: 16px;
     }
-    /* Animations */
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      background: #4caf50;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 5px;
+      animation: pulse 1.5s infinite;
+    }
+    .profile-info p {
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+    }
+    .profile-info i {
+      margin-right: 8px;
+      color: #ff7043;
+      font-size: 16px;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    /* Media Queries */
     @media (max-width: 768px) {
-      .top-menu { display: block; }
-      .sidebar {
-        position: fixed;
-        top: 60px;
-        left: -100%;
-        height: calc(100% - 60px);
-        transition: left 0.3s ease;
+      .main-content {
+        padding-top: 90px;
       }
-      .sidebar.active { left: 0; }
-      .container { flex-direction: column; }
-      .main-content { padding: 15px; }
-      .menu-toggle.active ~ .menu-content { display: flex; }
-      .menu-toggle { display: block; }
+      .section.active {
+        padding: 15px;
+        margin: 8px;
+      }
+      .quote {
+        margin: 8px;
+      }
     }
     @media (min-width: 769px) {
+      .container {
+        flex-direction: row;
+      }
+      .top-menu {
+        display: none;
+      }
       .sidebar {
         width: 250px;
-        text-align: left;
+        height: calc(100vh - 70px);
+        position: fixed;
+        top: 70px;
+        left: 0;
+        padding: 20px 0;
+        background: linear-gradient(to bottom, #00695c, #004d40);
       }
-      .main-content { padding: 30px; }
-      .section { padding: 30px; }
-      h1 { font-size: 32px; }
-      h2 { font-size: 22px; }
-      .card { padding: 20px; }
-      th, td { padding: 12px; }
+      .main-content {
+        margin-left: 250px;
+        padding: 90px 20px 20px;
+        display: flex;
+        flex-direction: column;
+      }
+      .section {
+        padding: 20px;
+      }
+      .quote {
+        margin: 8px 20px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="header">Borabu TTC</div>
     <div class="top-menu">
       <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-      <div class="menu-content">
-        <a href="#" onclick="showSection('profile')">Profile</a>
-        <a href="#" onclick="showSection('marks')">Marks</a>
-        <a href="#" onclick="showSection('fees')">Fees</a>
-        <a href="#" onclick="showSection('payFees')">Pay Fees</a>
-        <a href="#" onclick="showSection('announcements')">Announcements</a>
+      <div class="menu-content" id="menuContent">
+        <a href="#" onclick="showSection('profile', hideMenu())">Profile</a>
+        <a href="#" onclick="showSection('marks', hideMenu())">Academics</a>
+        <a href="#" onclick="showSection('fees', hideMenu())">Fees</a>
+        <a href="#" onclick="showSection('payFees', hideMenu())">Pay Fees</a>
+        <a href="#" onclick="showSection('announcements', hideMenu())">Announcements</a>
         <button onclick="logout()">Logout</button>
       </div>
     </div>
     <div class="sidebar">
       <div class="profile">
         <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
-        <p id="studentName"></p>
+        <p id="studentName"></p><span class="online-dot"></span>
       </div>
-      <h2>Student Portal</h2>
       <a href="#" onclick="showSection('profile')">Profile</a>
-      <a href="#" onclick="showSection('marks')">Marks</a>
+      <a href="#" onclick="showSection('marks')">Academics</a>
       <a href="#" onclick="showSection('fees')">Fees</a>
       <a href="#" onclick="showSection('payFees')">Pay Fees</a>
       <a href="#" onclick="showSection('announcements')">Announcements</a>
       <button onclick="logout()">Logout</button>
     </div>
     <div class="main-content">
+      <div class="quote">
+        <h2>Daily Quote</h2>
+        <p id="dailyQuote">"Education is the key to unlocking the world, a passport to freedom." - Oprah Winfrey</p>
+      </div>
       <div id="profile" class="section active">
         <h1>Profile</h1>
-        <p><strong>Explanation:</strong> View and manage your personal details, including admission number, name, year, stream, gender, sponsor, and parent contact information.</p>
-        <div class="card">
-          <p>Admission Number: <strong id="regNo"></strong></p>
-          <p>Name: <strong id="name">N/A</strong></p>
-          <p>Year: <strong id="year">N/A</strong></p>
-          <p>Stream: <strong id="stream">N/A</strong></p>
-          <p>Gender: <strong id="gender">N/A</strong></p>
-          <p>Sponsor: <strong id="sponsor">N/A</strong></p>
-          <p>Parent Name: <strong id="parentName">N/A</strong></p>
-          <p>Parent Phone: <strong id="parentPhone">N/A</strong></p>
+        <p><strong>Explanation:</strong> View your personal details, including admission number, name, year, stream, gender, sponsor, and parent contact information.</p>
+        <div class="card profile-info">
+          <p><i class="fas fa-id-card"></i> Admission Number: <strong id="regNo"></strong></p>
+          <p><i class="fas fa-user"></i> Name: <strong id="name">N/A</strong></p>
+          <p><i class="fas fa-calendar"></i> Year: <strong id="year">N/A</strong></p>
+          <p><i class="fas fa-stream"></i> Stream: <strong id="stream">N/A</strong></p>
+          <p><i class="fas fa-venus-mars"></i> Gender: <strong id="gender">N/A</strong></p>
+          <p><i class="fas fa-hand-holding-usd"></i> Sponsor: <strong id="sponsor">N/A</strong></p>
+          <p><i class="fas fa-users"></i> Parent Name: <strong id="parentName">N/A</strong></p>
+          <p><i class="fas fa-phone"></i> Parent Phone: <strong id="parentPhone">N/A</strong></p>
         </div>
       </div>
       <div id="marks" class="section">
-        <h1>Marks</h1>
+        <h1>Academics</h1>
         <p><strong>Explanation:</strong> Check your academic performance with CAT and exam scores across different terms and subjects, along with corresponding grades.</p>
         <div class="card">
           <table id="marksTable">
@@ -404,9 +440,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function showSection(section) {
+    function showSection(section, callback) {
       document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
       document.getElementById(section).classList.add("active");
+      if (callback) callback();
     }
 
     function showError(message) {
@@ -429,10 +466,19 @@
     }
 
     function toggleMenu() {
-      const sidebar = document.querySelector(".sidebar");
-      const menuToggle = document.querySelector(".menu-toggle");
-      sidebar.classList.toggle("active");
-      menuToggle.classList.toggle("active");
+      const menuContent = document.getElementById("menuContent");
+      menuContent.classList.toggle("active");
+    }
+
+    function hideMenu() {
+      const menuContent = document.getElementById("menuContent");
+      menuContent.classList.remove("active");
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      console.log("Logged out, redirecting to index.html");
+      window.location.href = "index.html";
     }
 
     window.onload = function() {
@@ -454,7 +500,6 @@
       studentRef.once("value", (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
-          // Profile
           const profile = data.profile || {};
           document.getElementById("name").textContent = profile.name || data.name || "N/A";
           document.getElementById("year").textContent = profile.year || data.form?.replace("form", "Year ") || "N/A";
@@ -464,7 +509,6 @@
           document.getElementById("parentName").textContent = profile.parentName || data.parentName || "N/A";
           document.getElementById("parentPhone").textContent = profile.parentPhone || data.parentPhone || "N/A";
 
-          // Marks
           const marksBody = document.getElementById("marksBody");
           marksBody.innerHTML = "";
           const terms = ["term1"];
@@ -490,7 +534,6 @@
             marksBody.innerHTML = "<tr><td colspan='5'>No marks available</td></tr>";
           }
 
-          // Fees
           const feesData = data.fees || {};
           const total = feesData.total || feesData.totalExpected || 0;
           const paidFromDb = feesData.paid || 0;
@@ -505,7 +548,6 @@
           const calculatedBalance = Math.max(0, total - totalPaid);
           const balance = balanceFromDb !== null ? balanceFromDb : calculatedBalance;
           const statement = feesData.statement || "N/A";
-          console.log(`Fees - Total: ${total}, Paid (DB: ${paidFromDb}, Total: ${totalPaid}), Balance (DB: ${balanceFromDb}, Calc: ${calculatedBalance}, Final: ${balance})`);
           document.getElementById("feesTotal").textContent = total.toLocaleString() || "N/A";
           document.getElementById("feesPaid").textContent = totalPaid.toLocaleString() || "N/A";
           document.getElementById("feesBalance").textContent = balance.toLocaleString() || "N/A";
@@ -534,7 +576,6 @@
               </tr>`;
             });
           }
-
         } else {
           showError("Student data not found.");
         }
@@ -543,7 +584,6 @@
         console.log("Error loading student data:", error);
       });
 
-      // Announcements
       const normalizedRegNo = regNo.replace(/\//g, "_");
       db.ref("announcements").once("value", (snapshot) => {
         const generalSnaps = ["ann1", "ann2", "ann3"].map(key => snapshot.child(key).val()).filter(s => s);
@@ -599,10 +639,5 @@
       localStorage.setItem(`announcement_${key}_${regNo}`, "read");
       window.onload();
     }
-
-    function logout() {
-      sessionStorage.clear();
-      console.log("Logged out, redirecting to index.html");
-      window.location.href = "index.html";
-    }
   </script>
+</html>

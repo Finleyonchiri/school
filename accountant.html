@@ -59,15 +59,15 @@
     }
     .main-content {
       flex: 1;
-      padding: 30px;
+      padding: 40px;
     }
     .section {
       display: none;
       background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+      padding: 50px; /* Increased padding for more space */
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
     }
     .section.active {
       display: block;
@@ -76,42 +76,81 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      font-size: 16px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
+      border: 2px solid #ddd;
+      padding: 15px;
       text-align: left;
     }
     th {
       background: #6b48ff;
       color: #fff;
+      font-size: 18px;
     }
     tr:nth-child(even) {
       background: #f9f9f9;
     }
-    select, input, textarea {
-      width: 100%;
-      padding: 12px;
+    .funds-overview {
+      display: flex;
+      justify-content: space-between;
       margin-bottom: 20px;
-      border: 2px solid #ccc;
+    }
+    .funds-overview div {
+      background: #f0f4f8;
+      padding: 15px;
+      border-radius: 8px;
+      width: 30%;
+      text-align: center;
+    }
+    .funds-overview strong {
+      font-size: 24px;
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .transaction-card {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #34495e;
+      font-size: 16px;
+    }
+    .input-group input, .input-group select, .input-group textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #ddd;
       border-radius: 8px;
       box-sizing: border-box;
       font-size: 16px;
     }
+    textarea {
+      resize: vertical; /* Allow vertical resizing for better control */
+      min-height: 200px; /* Increased default height */
+    }
     button {
-      padding: 12px;
-      background: linear-gradient(to right, #ff6f61, #ff9f61);
+      padding: 12px 20px;
+      background: linear-gradient(to right, #27ae60, #2ecc71);
       color: #fff;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
+      transition: background 0.3s;
     }
     button:hover {
-      background: linear-gradient(to right, #ff9f61, #ff6f61);
+      background: linear-gradient(to right, #2ecc71, #27ae60);
     }
     .error-message {
-      color: #ff4444;
+      color: #e74c3c;
       font-size: 16px;
       margin: 20px 0;
     }
@@ -147,23 +186,26 @@
       <a href="#" onclick="showSection('uploadFees')">Upload Fees</a>
       <a href="#" onclick="showSection('feeRecords')">Fee Records</a>
       <a href="#" onclick="showSection('announcements')">Announcements</a>
+      <a href="#" onclick="showSection('funds')">Funds Management</a>
+      <a href="#" onclick="showSection('purchases')">Make Purchase</a>
+      <a href="#" onclick="showSection('services')">Pay for Services</a>
       <button onclick="logout()">Logout</button>
     </div>
     <div class="main-content">
       <div id="students" class="section active">
-        <h1 style="font-size: 28px; color: #333;">Students</h1>
-        <select id="formSelect" onchange="loadStudents()">
-          <option value="form1">Form 1</option>
-          <option value="form2">Form 2</option>
-          <option value="form3">Form 3</option>
-          <option value="form4">Form 4</option>
+        <h1 style="font-size: 32px; color: #333;">Students</h1>
+        <select id="formSelect" onchange="loadStudents()" style="font-size: 16px; padding: 12px;">
+          <option value="form1">Year 1</option>
+          <option value="form2">Year 2</option>
+          <option value="form3">Year 3</option>
+          <option value="form4">Year 4</option>
         </select>
         <table id="studentsTable">
           <thead>
             <tr>
               <th>Reg No</th>
               <th>Name</th>
-              <th>Form</th>
+              <th>Year</th>
               <th>Stream</th>
               <th>Total Expected (KES)</th>
               <th>Total Paid (KES)</th>
@@ -174,47 +216,107 @@
         </table>
       </div>
       <div id="uploadFees" class="section">
-        <h1 style="font-size: 28px; color: #333;">Upload Fees</h1>
-        <select id="feesFormSelect" onchange="loadFeesForm()">
-          <option value="form1">Form 1</option>
-          <option value="form2">Form 2</option>
-          <option value="form3">Form 3</option>
-          <option value="form4">Form 4</option>
+        <h1 style="font-size: 32px; color: #333;">Upload Fees</h1>
+        <select id="feesFormSelect" onchange="loadFeesForm()" style="font-size: 16px; padding: 12px;">
+          <option value="form1">Year 1</option>
+          <option value="form2">Year 2</option>
+          <option value="form3">Year 3</option>
+          <option value="form4">Year 4</option>
         </select>
-        <select id="feesStudentSelect"></select>
-        <input id="amount" type="number" placeholder="Amount (KES)">
-        <select id="paymentMethod">
+        <select id="feesStudentSelect" style="font-size: 16px; padding: 12px;"></select>
+        <input id="amount" type="number" placeholder="Amount (KES)" style="font-size: 16px; padding: 12px;">
+        <select id="paymentMethod" style="font-size: 16px; padding: 12px;">
           <option value="bank">Bank</option>
           <option value="mpesa">M-Pesa</option>
           <option value="cash">Cash</option>
           <option value="bursary">Bursary</option>
         </select>
-        <input id="transactionCode" type="text" placeholder="Transaction Code">
-        <input id="payerName" type="text" placeholder="Payer Name">
+        <input id="transactionCode" type="text" placeholder="Transaction Code" style="font-size: 16px; padding: 12px;">
+        <input id="payerName" type="text" placeholder="Payer Name" style="font-size: 16px; padding: 12px;">
         <button onclick="uploadFees()">Upload Payment</button>
         <div id="uploadFeesMessage" class="error-message"></div>
       </div>
       <div id="feeRecords" class="section">
-        <h1 style="font-size: 28px; color: #333;">Fee Records</h1>
-        <select id="recordsFormSelect" onchange="loadFeeRecords()">
-          <option value="form1">Form 1</option>
-          <option value="form2">Form 2</option>
-          <option value="form3">Form 3</option>
-          <option value="form4">Form 4</option>
+        <h1 style="font-size: 32px; color: #333;">Fee Records</h1>
+        <select id="recordsFormSelect" onchange="loadFeeRecords()" style="font-size: 16px; padding: 12px;">
+          <option value="form1">Year 1</option>
+          <option value="form2">Year 2</option>
+          <option value="form3">Year 3</option>
+          <option value="form4">Year 4</option>
         </select>
-        <select id="recordsStudentSelect" onchange="displayFeeRecords()"></select>
+        <select id="recordsStudentSelect" onchange="displayFeeRecords()" style="font-size: 16px; padding: 12px;"></select>
         <div id="feeRecordsTable"></div>
       </div>
       <div id="announcements" class="section">
-        <h1 style="font-size: 28px; color: #333;">Announcements</h1>
-        <select id="announcementType" onchange="loadAnnouncementForm()">
+        <h1 style="font-size: 32px; color: #333;">Announcements</h1>
+        <select id="announcementType" onchange="loadAnnouncementForm()" style="font-size: 18px; padding: 15px;">
           <option value="general">General</option>
           <option value="individual">Individual</option>
         </select>
-        <select id="announcementStudent" style="display: none;"></select>
-        <input id="announcementTitle" type="text" placeholder="Title">
-        <textarea id="announcementMessage" placeholder="Message"></textarea>
+        <select id="announcementStudent" style="display: none; font-size: 18px; padding: 15px;"></select>
+        <input id="announcementTitle" type="text" placeholder="Title" style="font-size: 18px; padding: 15px;">
+        <textarea id="announcementMessage" placeholder="Message" style="font-size: 18px; padding: 15px; min-height: 250px;"></textarea>
         <button onclick="addAnnouncement()">Add Announcement</button>
+      </div>
+      <div id="funds" class="section">
+        <h1 style="font-size: 28px; color: #333;">Funds Management</h1>
+        <div class="funds-overview">
+          <div>
+            <strong id="fundsTotal">Loading...</strong>
+            <span>Total Amount (KES)</span>
+          </div>
+          <div>
+            <span id="fundsLastUpdated">Loading...</span>
+            <span>Last Updated</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="addFundsAmount">Add Funds (KES)</label>
+          <input type="number" id="addFundsAmount" placeholder="Enter amount" min="1">
+        </div>
+        <button onclick="addFunds()">Add Funds</button>
+        <div id="fundsMessage" class="error-message"></div>
+        <h3>Transaction History</h3>
+        <div id="transactionLog"></div>
+        <p style="font-style: italic; color: #7f8c8d;">Note: The database updates automatically with every transaction.</p>
+      </div>
+      <div id="purchases" class="section">
+        <h1 style="font-size: 28px; color: #333;">Make Purchase</h1>
+        <div class="input-group">
+          <label for="purchaseDescription">Item Description</label>
+          <input id="purchaseDescription" type="text" placeholder="e.g., Books">
+        </div>
+        <div class="input-group">
+          <label for="purchaseAmount">Amount (KES)</label>
+          <input id="purchaseAmount" type="number" placeholder="Enter amount" min="1">
+        </div>
+        <div class="input-group">
+          <label for="purchaseVendor">Vendor</label>
+          <input id="purchaseVendor" type="text" placeholder="Enter vendor">
+        </div>
+        <button onclick="makePurchase()">Submit Purchase</button>
+        <div id="purchaseMessage" class="error-message"></div>
+        <h3>Purchase History</h3>
+        <div id="purchaseLog"></div>
+      </div>
+      <div id="services" class="section">
+        <h1 style="font-size: 28px; color: #333;">Pay for Services</h1>
+        <div class="input-group">
+          <label for="serviceDescription">Service Description</label>
+          <input id="serviceDescription" type="text" placeholder="e.g., Electricity">
+        </div>
+        <div class="input-group">
+          <label for="serviceAmount">Amount (KES)</label>
+          <input id="serviceAmount" type="number" placeholder="Enter amount" min="1">
+        </div>
+        <div class="input-group">
+          <label for="serviceProvider">Provider</label>
+          <input id="serviceProvider" type="text" placeholder="Enter provider">
+        </div>
+        <button onclick="payForService()">Submit Payment</button>
+        <div id="serviceMessage" class="error-message"></div>
+        <h3>Payment History</h3>
+        <div id="serviceLog"></div>
       </div>
     </div>
   </div>
@@ -250,6 +352,7 @@
         loadStudents();
         loadFeesForm();
         loadFeeRecords();
+        loadFunds();
       }
     });
 
@@ -261,7 +364,7 @@
     function showMessage(elementId, message, isError = true) {
       const messageDiv = document.getElementById(elementId);
       messageDiv.textContent = message;
-      messageDiv.style.color = isError ? "#ff4444" : "#00cc00";
+      messageDiv.style.color = isError ? "#e74c3c" : "#27ae60";
       messageDiv.style.display = "block";
       setTimeout(() => {
         messageDiv.style.display = "none";
@@ -291,7 +394,7 @@
             if (Array.isArray(transactions)) {
               totalPaid = transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
             } else if (typeof transactions === "object") {
-              totalPaid = Object.values(transactions).reduce((sum, tx) => sum + (tx.amount || 0), 0, 0);
+              totalPaid = Object.values(transactions).reduce((sum, tx) => sum + (tx.amount || 0), 0);
             }
             const totalExpected = student.fees?.total || student.fees?.totalExpected || 0;
             const balance = totalExpected - totalPaid;
@@ -308,7 +411,7 @@
         });
 
         if (studentsList.length === 0) {
-          studentsBody.innerHTML = `<tr><td colspan="7">No students found in ${form}.</td></tr>`;
+          studentsBody.innerHTML = `<tr><td colspan="7">No students found in ${form.replace("form", "Year ")}.</td></tr>`;
           return;
         }
 
@@ -317,7 +420,7 @@
           studentsBody.innerHTML += `<tr>
             <td>${student.regNo}</td>
             <td>${student.name}</td>
-            <td>${student.form}</td>
+            <td>${student.form.replace("form", "Year ")}</td>
             <td>${student.stream}</td>
             <td>${student.totalExpected}</td>
             <td>${student.totalPaid}</td>
@@ -352,7 +455,7 @@
         });
 
         if (studentsList.length === 0) {
-          studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
+          studentSelect.innerHTML = `<option value="">No students found in ${form.replace("form", "Year ")}.</option>`;
           return;
         }
 
@@ -425,7 +528,7 @@
         });
 
         if (studentsList.length === 0) {
-          studentSelect.innerHTML = `<option value="">No students found in ${form}.</option>`;
+          studentSelect.innerHTML = `<option value="">No students found in ${form.replace("form", "Year ")}.</option>`;
           document.getElementById("feeRecordsTable").innerHTML = "<p>No students available to view fee records.</p>";
           return;
         }
@@ -468,11 +571,11 @@
         const totalPaid = transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
         const balance = totalExpected - totalPaid;
 
-        let html = `<h3 style="font-size: 18px; color: #333;">Fee Summary</h3>
+        let html = `<h3 style="font-size: 20px; color: #333;">Fee Summary</h3>
           <p>Total Expected: KES ${totalExpected}</p>
           <p>Total Paid: KES ${totalPaid}</p>
           <p>Balance: KES ${balance}</p>
-          <h3 style="font-size: 18px; color: #333;">Transaction History</h3>`;
+          <h3 style="font-size: 20px; color: #333;">Transaction History</h3>`;
 
         if (transactions.length === 0) {
           html += "<p>No transactions recorded.</p>";
@@ -594,6 +697,206 @@
       }).catch(error => {
         console.error("Logout failed:", error);
         alert("Failed to log out: " + error.message);
+      });
+    }
+
+    function loadFunds() {
+      db.ref("school_funds").once("value", (snapshot) => {
+        const data = snapshot.val() || { balance: 0, last_updated: new Date().toISOString() };
+        document.getElementById("fundsTotal").textContent = data.balance;
+        document.getElementById("fundsLastUpdated").textContent = data.last_updated;
+        loadTransactions();
+      }).catch(error => {
+        document.getElementById("fundsMessage").textContent = `Failed to load funds: ${error.message}`;
+      });
+    }
+
+    function loadTransactions() {
+      db.ref("transactions").once("value", (snapshot) => {
+        const transactions = snapshot.val() || {};
+        const log = document.getElementById("transactionLog");
+        log.innerHTML = "";
+        Object.keys(transactions).forEach(key => {
+          const t = transactions[key];
+          log.innerHTML += `<div class="transaction-card">
+            <strong>${t.timestamp}</strong><br>
+            <span>Type: ${t.type}</span><br>
+            <span>Description: ${t.description}</span><br>
+            <span>Amount: ${t.amount} KES</span><br>
+            <span>Balance After: ${t.balance_after} KES</span><br>
+            <span>Status: ${t.status}</span>
+          </div>`;
+        });
+      }).catch(error => {
+        document.getElementById("transactionLog").innerHTML = `<p>Failed to load transactions: ${error.message}</p>`;
+      });
+    }
+
+    function addFunds() {
+      const amount = parseInt(document.getElementById("addFundsAmount").value);
+      if (!amount || amount <= 0) {
+        showMessage("fundsMessage", "Please enter a valid amount.");
+        return;
+      }
+      if (!confirm(`Are you sure you want to add ${amount} KES to funds?`)) return;
+
+      db.ref("school_funds").once("value", (snapshot) => {
+        const data = snapshot.val() || { balance: 0 };
+        const newBalance = data.balance + amount;
+        const timestamp = new Date().toISOString();
+        db.ref("school_funds").update({ balance: newBalance, last_updated: timestamp })
+          .then(() => {
+            db.ref("transactions").push({
+              timestamp,
+              amount,
+              type: "funds_add",
+              description: "Funds added",
+              balance_after: newBalance,
+              status: "completed"
+            }).then(() => {
+              showMessage("fundsMessage", "Funds added successfully!", false);
+              document.getElementById("addFundsAmount").value = "";
+              loadFunds();
+            }).catch(error => {
+              showMessage("fundsMessage", `Failed to log funds addition: ${error.message}`);
+            });
+          }).catch(error => {
+            showMessage("fundsMessage", `Failed to update funds: ${error.message}`);
+          });
+      }).catch(error => {
+        showMessage("fundsMessage", `Failed to check funds: ${error.message}`);
+      });
+    }
+
+    function makePurchase() {
+      const description = document.getElementById("purchaseDescription").value.trim();
+      const amount = parseInt(document.getElementById("purchaseAmount").value);
+      const vendor = document.getElementById("purchaseVendor").value.trim();
+
+      if (!description || !amount || !vendor || amount <= 0) {
+        showMessage("purchaseMessage", "Please fill all fields with valid amounts.");
+        return;
+      }
+      if (!confirm(`Confirm purchase of ${description} for ${amount} KES from ${vendor}?`)) return;
+
+      db.ref("school_funds").once("value", (snapshot) => {
+        const data = snapshot.val() || { balance: 0 };
+        if (data.balance < amount) {
+          showMessage("purchaseMessage", "Insufficient funds for this purchase.");
+          return;
+        }
+
+        const newBalance = data.balance - amount;
+        const timestamp = new Date().toISOString();
+        db.ref("school_funds").update({ balance: newBalance, last_updated: timestamp })
+          .then(() => {
+            db.ref("transactions").push({
+              timestamp,
+              amount,
+              type: "purchase",
+              description: `${description} from ${vendor}`,
+              balance_after: newBalance,
+              status: "completed"
+            }).then(() => {
+              showMessage("purchaseMessage", "Purchase recorded successfully!", false);
+              document.getElementById("purchaseDescription").value = "";
+              document.getElementById("purchaseAmount").value = "";
+              document.getElementById("purchaseVendor").value = "";
+              loadFunds();
+              loadPurchaseHistory();
+            }).catch(error => {
+              showMessage("purchaseMessage", `Failed to log purchase: ${error.message}`);
+            });
+          }).catch(error => {
+            showMessage("purchaseMessage", `Failed to update funds: ${error.message}`);
+          });
+      }).catch(error => {
+        showMessage("purchaseMessage", `Failed to check funds: ${error.message}`);
+      });
+    }
+
+    function payForService() {
+      const description = document.getElementById("serviceDescription").value.trim();
+      const amount = parseInt(document.getElementById("serviceAmount").value);
+      const provider = document.getElementById("serviceProvider").value.trim();
+
+      if (!description || !amount || !provider || amount <= 0) {
+        showMessage("serviceMessage", "Please fill all fields with valid amounts.");
+        return;
+      }
+      if (!confirm(`Confirm payment for ${description} of ${amount} KES to ${provider}?`)) return;
+
+      db.ref("school_funds").once("value", (snapshot) => {
+        const data = snapshot.val() || { balance: 0 };
+        if (data.balance < amount) {
+          showMessage("serviceMessage", "Insufficient funds for this payment.");
+          return;
+        }
+
+        const newBalance = data.balance - amount;
+        const timestamp = new Date().toISOString();
+        db.ref("school_funds").update({ balance: newBalance, last_updated: timestamp })
+          .then(() => {
+            db.ref("transactions").push({
+              timestamp,
+              amount,
+              type: "service",
+              description: `${description} to ${provider}`,
+              balance_after: newBalance,
+              status: "completed"
+            }).then(() => {
+              showMessage("serviceMessage", "Service payment recorded successfully!", false);
+              document.getElementById("serviceDescription").value = "";
+              document.getElementById("serviceAmount").value = "";
+              document.getElementById("serviceProvider").value = "";
+              loadFunds();
+              loadServiceHistory();
+            }).catch(error => {
+              showMessage("serviceMessage", `Failed to log payment: ${error.message}`);
+            });
+          }).catch(error => {
+            showMessage("serviceMessage", `Failed to update funds: ${error.message}`);
+          });
+      }).catch(error => {
+        showMessage("serviceMessage", `Failed to check funds: ${error.message}`);
+      });
+    }
+
+    function loadPurchaseHistory() {
+      db.ref("transactions").orderByChild("type").equalTo("purchase").once("value", (snapshot) => {
+        const transactions = snapshot.val() || {};
+        const log = document.getElementById("purchaseLog");
+        log.innerHTML = "";
+        Object.keys(transactions).forEach(key => {
+          const t = transactions[key];
+          log.innerHTML += `<div class="transaction-card">
+            <strong>${t.timestamp}</strong><br>
+            <span>Description: ${t.description}</span><br>
+            <span>Amount: ${t.amount} KES</span><br>
+            <span>Balance After: ${t.balance_after} KES</span>
+          </div>`;
+        });
+      }).catch(error => {
+        document.getElementById("purchaseLog").innerHTML = `<p>Failed to load purchase history: ${error.message}</p>`;
+      });
+    }
+
+    function loadServiceHistory() {
+      db.ref("transactions").orderByChild("type").equalTo("service").once("value", (snapshot) => {
+        const transactions = snapshot.val() || {};
+        const log = document.getElementById("serviceLog");
+        log.innerHTML = "";
+        Object.keys(transactions).forEach(key => {
+          const t = transactions[key];
+          log.innerHTML += `<div class="transaction-card">
+            <strong>${t.timestamp}</strong><br>
+            <span>Description: ${t.description}</span><br>
+            <span>Amount: ${t.amount} KES</span><br>
+            <span>Balance After: ${t.balance_after} KES</span>
+          </div>`;
+        });
+      }).catch(error => {
+        document.getElementById("serviceLog").innerHTML = `<p>Failed to load service history: ${error.message}</p>`;
       });
     }
   </script>

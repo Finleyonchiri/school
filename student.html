@@ -6,208 +6,294 @@
   <title>Student Portal - Borabu TTC</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- For icons -->
   <style>
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      background: linear-gradient(135deg, #e0f7fa, #f8e1e1); /* Teal to soft pink gradient */
       min-height: 100vh;
+      color: #2d2d2d;
     }
     .container {
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* Mobile Menu */
+    .top-menu {
+      display: none;
+      background: #00695c; /* Teal */
+      padding: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .menu-toggle {
+      font-size: 24px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .menu-content {
+      display: none;
+      flex-direction: column;
+      background: #00695c;
+    }
+    .menu-content a {
+      color: #fff;
+      padding: 12px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .menu-content a:hover {
+      background: #004d40;
     }
     .sidebar {
       width: 100%;
-      background: linear-gradient(to bottom, #6b48ff, #ff6f61);
+      background: linear-gradient(to bottom, #00695c, #004d40); /* Teal gradient */
       color: #fff;
       padding: 20px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       text-align: center;
+      transition: transform 0.3s ease;
     }
     .sidebar .profile {
       margin-bottom: 20px;
     }
     .sidebar .profile img {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      border: 3px solid #ffd700;
+      border: 4px solid #ffd700; /* Gold border */
       margin-bottom: 10px;
+      transition: transform 0.3s ease;
+    }
+    .sidebar .profile img:hover {
+      transform: scale(1.1);
     }
     .sidebar h2 {
-      font-size: 20px;
+      font-size: 22px;
       margin-bottom: 20px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      font-weight: 600;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
     .sidebar a {
       display: block;
       color: #fff;
-      padding: 12px;
+      padding: 14px;
       text-decoration: none;
-      background: rgba(255, 255, 255, 0.1);
-      margin-bottom: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: background 0.3s;
+      background: rgba(255, 255, 255, 0.15);
+      margin-bottom: 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
     .sidebar a:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: #ffd700; /* Gold hover */
+      color: #004d40;
+      transform: translateX(5px);
     }
     .main-content {
       flex: 1;
-      padding: 15px;
+      padding: 20px;
     }
     .section {
       display: none;
       background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      margin-bottom: 15px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border-left: 5px solid #ff7043; /* Coral accent */
+      animation: fadeIn 0.5s ease-in;
     }
     .section.active {
       display: block;
     }
     h1 {
-      font-size: 24px;
-      color: #333;
-      margin-bottom: 10px;
+      font-size: 28px;
+      color: #00695c; /* Teal */
+      margin-bottom: 15px;
+      font-weight: 700;
+      border-bottom: 2px solid #ffd700; /* Gold line */
+      padding-bottom: 5px;
     }
     h2 {
-      color: #6b48ff;
-      font-size: 18px;
-      margin-bottom: 8px;
+      color: #ff7043; /* Coral */
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
     }
     .card {
-      background: #f9f9f9;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 12px;
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
-      font-size: 14px;
+      margin-top: 10px;
+      font-size: 15px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
+      border: 2px solid #b0bec5; /* Light blue-gray */
+      padding: 10px;
       text-align: left;
     }
     th {
-      background: #6b48ff;
+      background: #ffca28; /* Amber */
       color: #fff;
+      font-weight: 600;
     }
     tr:nth-child(even) {
-      background: #f9f9f9;
+      background: #eceff1; /* Light gray */
+    }
+    .fees-highlight {
+      font-weight: 700;
+      color: #00695c;
+      background: #e0f2f1; /* Light teal */
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
     }
     .announcement {
-      background: #f1f5f9;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 8px 0;
-      transition: background 0.3s ease;
+      background: #fff3e0; /* Light orange */
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border-left: 4px solid #ff7043;
+      transition: transform 0.3s ease;
+    }
+    .announcement:hover {
+      transform: translateX(10px);
     }
     .announcement.unread {
-      background: #e6f0fa;
-      border-left: 4px solid #6b48ff;
+      background: #ffe0b2;
+      font-weight: 500;
     }
     .announcement.read {
-      background: #f9f9f9;
+      background: #fff3e0;
     }
     .mark-read {
-      background: #ff6f61;
+      background: #ff7043; /* Coral */
       color: #fff;
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
+      padding: 8px 15px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
       transition: background 0.3s ease;
     }
     .mark-read:hover {
-      background: #ff9f61;
+      background: #f4511e; /* Darker coral */
     }
     button {
-      padding: 10px;
-      background: linear-gradient(to right, #6b48ff, #ff6f61);
+      padding: 12px 20px;
+      background: linear-gradient(to right, #00695c, #ff7043); /* Teal to coral */
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
-      display: block;
-      margin-top: 15px;
-      width: 100%;
-      max-width: 200px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: transform 0.3s ease, background 0.3s ease;
     }
     button:hover {
-      background: linear-gradient(to right, #ff6f61, #6b48ff);
+      transform: scale(1.05);
+      background: linear-gradient(to right, #ff7043, #00695c);
     }
     .error-message {
-      color: #ff4444;
-      font-size: 14px;
-      margin: 8px 0;
+      color: #d32f2f; /* Red */
+      font-size: 15px;
+      margin: 10px 0;
+      padding: 10px;
+      background: #ffebee; /* Light red */
+      border-radius: 5px;
+    }
+    /* Payment Section Styling */
+    .payment-center {
+      text-align: center;
+      padding: 20px;
+      background: #fffde7; /* Light yellow */
+      border-radius: 12px;
+      border: 2px dashed #ffca28; /* Amber */
+    }
+    .payment-center h1 {
+      font-size: 30px;
+      color: #ff7043;
+      margin-bottom: 15px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .payment-assurance {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
+    }
+    .payment-assurance li {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #00695c;
+      display: flex;
+      align-items: center;
+    }
+    .payment-assurance li i {
+      color: #4caf50; /* Green for ticks */
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Media Queries */
+    @media (max-width: 768px) {
+      .top-menu { display: block; }
+      .sidebar {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        height: calc(100% - 60px);
+        transition: left 0.3s ease;
+      }
+      .sidebar.active { left: 0; }
+      .container { flex-direction: column; }
+      .main-content { padding: 15px; }
+      .menu-toggle.active ~ .menu-content { display: flex; }
+      .menu-toggle { display: block; }
     }
     @media (min-width: 769px) {
-      .container {
-        flex-direction: row;
-      }
       .sidebar {
         width: 250px;
         text-align: left;
       }
-      .sidebar .profile img {
-        width: 80px;
-        height: 80px;
-      }
-      .sidebar h2 {
-        font-size: 24px;
-      }
-      .sidebar a {
-        font-size: 16px;
-        padding: 15px;
-      }
-      .main-content {
-        padding: 30px;
-      }
-      .section {
-        padding: 20px;
-      }
-      h1 {
-        font-size: 28px;
-      }
-      h2 {
-        font-size: 20px;
-      }
-      .card {
-        padding: 15px;
-      }
-      table {
-        font-size: 16px;
-      }
-      th, td {
-        padding: 10px;
-      }
-      .announcement {
-        padding: 15px;
-      }
-      .mark-read {
-        padding: 8px 15px;
-        font-size: 14px;
-      }
-      button {
-        padding: 12px;
-        font-size: 16px;
-        max-width: none;
-      }
+      .main-content { padding: 30px; }
+      .section { padding: 30px; }
+      h1 { font-size: 32px; }
+      h2 { font-size: 22px; }
+      .card { padding: 20px; }
+      th, td { padding: 12px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="top-menu">
+      <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+      <div class="menu-content">
+        <a href="#" onclick="showSection('profile')">Profile</a>
+        <a href="#" onclick="showSection('marks')">Marks</a>
+        <a href="#" onclick="showSection('fees')">Fees</a>
+        <a href="#" onclick="showSection('payFees')">Pay Fees</a>
+        <a href="#" onclick="showSection('announcements')">Announcements</a>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
     <div class="sidebar">
       <div class="profile">
         <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
@@ -224,19 +310,21 @@
     <div class="main-content">
       <div id="profile" class="section active">
         <h1>Profile</h1>
+        <p><strong>Explanation:</strong> View and manage your personal details, including admission number, name, year, stream, gender, sponsor, and parent contact information.</p>
         <div class="card">
-          <p>Admission Number: <span id="regNo"></span></p>
-          <p>Name: <span id="name">N/A</span></p>
-          <p>Year: <span id="year">N/A</span></p>
-          <p>Stream: <span id="stream">N/A</span></p>
-          <p>Gender: <span id="gender">N/A</span></p>
-          <p>Sponsor: <span id="sponsor">N/A</span></p>
-          <p>Parent Name: <span id="parentName">N/A</span></p>
-          <p>Parent Phone: <span id="parentPhone">N/A</span></p>
+          <p>Admission Number: <strong id="regNo"></strong></p>
+          <p>Name: <strong id="name">N/A</strong></p>
+          <p>Year: <strong id="year">N/A</strong></p>
+          <p>Stream: <strong id="stream">N/A</strong></p>
+          <p>Gender: <strong id="gender">N/A</strong></p>
+          <p>Sponsor: <strong id="sponsor">N/A</strong></p>
+          <p>Parent Name: <strong id="parentName">N/A</strong></p>
+          <p>Parent Phone: <strong id="parentPhone">N/A</strong></p>
         </div>
       </div>
       <div id="marks" class="section">
         <h1>Marks</h1>
+        <p><strong>Explanation:</strong> Check your academic performance with CAT and exam scores across different terms and subjects, along with corresponding grades.</p>
         <div class="card">
           <table id="marksTable">
             <thead>
@@ -254,10 +342,11 @@
       </div>
       <div id="fees" class="section">
         <h1>Fees</h1>
+        <p><strong>Explanation:</strong> Monitor your fee status, including total amount, payments made, outstanding balance, and a detailed transaction history.</p>
         <div class="card">
-          <p>Total: <span id="feesTotal">N/A</span></p>
-          <p>Paid: <span id="feesPaid">N/A</span></p>
-          <p>Balance: <span id="feesBalance">N/A</span></p>
+          <p>Total: <span class="fees-highlight" id="feesTotal">N/A</span></p>
+          <p>Paid: <span class="fees-highlight" id="feesPaid">N/A</span></p>
+          <p>Balance: <span class="fees-highlight" id="feesBalance">N/A</span></p>
           <p>Statement: <span id="feesStatement">N/A</span></p>
           <table id="transactionsTable">
             <thead>
@@ -275,13 +364,24 @@
       </div>
       <div id="payFees" class="section">
         <h1>Pay Fees</h1>
-        <div class="card">
-          <p>Your fee payments are meticulously recorded by our dedicated accounts team to ensure accuracy and transparency. Should you encounter any issues with fee reflections, payment processing, or delayed STK push notifications, please visit the Accounts Office for prompt assistance. After every successful payment, we kindly request you to contact the Accounts Office to confirm receipt. Thank you for your cooperation!</p>
+        <p><strong>Explanation:</strong> Access a secure payment portal to settle your fees. Our team ensures accuracy and support for any issues.</p>
+        <div class="payment-center">
+          <h1>Welcome to Borabu TTC Fee Payment Centre</h1>
+          <p>Make your payments with ease and confidence!</p>
+          <ul class="payment-assurance">
+            <li><i class="fas fa-check-circle"></i> Fast Processing</li>
+            <li><i class="fas fa-check-circle"></i> Reliable Service</li>
+            <li><i class="fas fa-check-circle"></i> Trusted Platform</li>
+            <li><i class="fas fa-check-circle"></i> Secure Transactions</li>
+            <li><i class="fas fa-check-circle"></i> 24/7 Support</li>
+          </ul>
           <button onclick="window.open('https://payment.intasend.com/pay/b90e1c19-33da-4b7d-a654-c4fb72eb9ea7/', '_blank')">Pay Now</button>
+          <p>After payment, please contact the Accounts Office to confirm receipt. For issues, visit the office for assistance.</p>
         </div>
       </div>
       <div id="announcements" class="section">
         <h1>Announcements</h1>
+        <p><strong>Explanation:</strong> Stay updated with the latest news, notices, and messages from teachers or administrators.</p>
         <div class="card">
           <div id="announcementsList"></div>
         </div>
@@ -326,6 +426,13 @@
         }
         return email;
       }).catch(() => email);
+    }
+
+    function toggleMenu() {
+      const sidebar = document.querySelector(".sidebar");
+      const menuToggle = document.querySelector(".menu-toggle");
+      sidebar.classList.toggle("active");
+      menuToggle.classList.toggle("active");
     }
 
     window.onload = function() {
@@ -472,9 +579,9 @@
             const div = document.createElement("div");
             div.className = `announcement ${isRead ? "read" : "unread"}`;
             div.innerHTML = `
-              <h3>${ann.title || ann.text || ann.message} (${ann.date})</h3>
+              <h2>${ann.title || ann.text || ann.message}</h2>
               <p>${ann.message || ann.text}</p>
-              <p><strong>By:</strong> ${maker || "Unknown"}</p>
+              <p><strong>By:</strong> <strong>${maker || "Unknown"}</strong> (${ann.date})</p>
               ${ann.type === "individual" ? "<p><strong>To:</strong> You</p>" : ""}
               <button class="mark-read" onclick="markAsRead('${ann.key}')">Mark as Read</button>
             `;
@@ -499,5 +606,3 @@
       window.location.href = "index.html";
     }
   </script>
-</body>
-</html>

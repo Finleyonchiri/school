@@ -37,7 +37,7 @@
     .top-menu {
       position: fixed;
       top: 70px;
-      left: 10px;
+      right: 10px;
       z-index: 1000;
     }
     .menu-toggle {
@@ -57,7 +57,7 @@
       display: none;
       position: absolute;
       top: 40px;
-      left: 0;
+      right: 0;
       background: #00695c;
       border-radius: 5px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -82,10 +82,38 @@
     .menu-content a:hover, .menu-content button:hover {
       background: #004d40;
     }
+    .sidebar {
+      width: 250px;
+      height: calc(100vh - 70px);
+      position: fixed;
+      top: 70px;
+      left: 0;
+      padding: 20px 0;
+      background: linear-gradient(to bottom, #00695c, #004d40);
+      z-index: 900;
+    }
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar .profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+    .sidebar .profile p {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 5px 0;
+      display: inline-flex;
+      align-items: center;
+    }
     .main-content {
       flex: 1;
       padding: 90px 15px 15px;
       overflow-y: auto;
+      margin-left: 250px;
     }
     .quote {
       background: #e0f2f1;
@@ -106,6 +134,8 @@
       margin: 10px;
       border-left: 4px solid #ff7043;
       animation: fadeIn 0.5s ease-in;
+      max-height: 70vh;
+      overflow-y: auto;
     }
     .section.active {
       display: block;
@@ -242,12 +272,13 @@
       font-size: 16px;
     }
     .online-dot {
-      width: 8px;
-      height: 8px;
-      background: #4caf50;
+      width: 12px;
+      height: 12px;
+      background: #00ff00;
       border-radius: 50%;
       display: inline-block;
       margin-left: 5px;
+      box-shadow: 0 0 10px #00ff00;
       animation: pulse 1.5s infinite;
     }
     .profile-info p {
@@ -262,9 +293,9 @@
       font-size: 16px;
     }
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+      0% { transform: scale(1); box-shadow: 0 0 5px #00ff00; }
+      50% { transform: scale(1.2); box-shadow: 0 0 15px #00ff00; }
+      100% { transform: scale(1); box-shadow: 0 0 5px #00ff00; }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -272,14 +303,14 @@
     }
     @media (max-width: 768px) {
       .main-content {
-        padding-top: 90px;
+        padding: 90px 15px 15px;
+        margin-left: 0;
       }
-      .section.active {
-        padding: 15px;
-        margin: 8px;
+      .sidebar {
+        display: none;
       }
-      .quote {
-        margin: 8px;
+      .section {
+        max-height: 60vh;
       }
     }
     @media (min-width: 769px) {
@@ -287,28 +318,13 @@
         flex-direction: row;
       }
       .top-menu {
-        display: none;
+        display: block;
       }
       .sidebar {
-        width: 250px;
-        height: calc(100vh - 70px);
-        position: fixed;
-        top: 70px;
-        left: 0;
-        padding: 20px 0;
-        background: linear-gradient(to bottom, #00695c, #004d40);
+        display: block;
       }
       .main-content {
         margin-left: 250px;
-        padding: 90px 20px 20px;
-        display: flex;
-        flex-direction: column;
-      }
-      .section {
-        padding: 20px;
-      }
-      .quote {
-        margin: 8px 20px;
       }
     }
   </style>
@@ -332,12 +348,6 @@
         <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
         <p id="studentName"></p><span class="online-dot"></span>
       </div>
-      <a href="#" onclick="showSection('profile')">Profile</a>
-      <a href="#" onclick="showSection('marks')">Academics</a>
-      <a href="#" onclick="showSection('fees')">Fees</a>
-      <a href="#" onclick="showSection('payFees')">Pay Fees</a>
-      <a href="#" onclick="showSection('announcements')">Announcements</a>
-      <button onclick="logout()">Logout</button>
     </div>
     <div class="main-content">
       <div class="quote">

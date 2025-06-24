@@ -111,7 +111,7 @@
     }
     .main-content {
       flex: 1;
-      padding: 90px 15px 15px;
+      padding: 90px 15px 60px;
       overflow-y: auto;
       margin-left: 250px;
     }
@@ -292,6 +292,49 @@
       color: #ff7043;
       font-size: 16px;
     }
+    .progress-bar {
+      width: 100%;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .progress {
+      height: 20px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #00695c, #ff7043);
+      text-align: center;
+      color: #fff;
+      line-height: 20px;
+    }
+    .term-select {
+      margin: 10px 0;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #b0bec5;
+    }
+    footer {
+      background: #00695c;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    footer p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    footer a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
     @keyframes pulse {
       0% { transform: scale(1); box-shadow: 0 0 5px #00ff00; }
       50% { transform: scale(1.2); box-shadow: 0 0 15px #00ff00; }
@@ -303,14 +346,17 @@
     }
     @media (max-width: 768px) {
       .main-content {
-        padding: 90px 15px 15px;
+        padding: 90px 15px 60px;
         margin-left: 0;
       }
       .sidebar {
         display: none;
       }
       .section {
-        max-height: 60vh;
+        max-height: 50vh;
+      }
+      footer {
+        padding: 5px 0;
       }
     }
     @media (min-width: 769px) {
@@ -366,11 +412,19 @@
           <p><i class="fas fa-hand-holding-usd"></i> Sponsor: <strong id="sponsor">N/A</strong></p>
           <p><i class="fas fa-users"></i> Parent Name: <strong id="parentName">N/A</strong></p>
           <p><i class="fas fa-phone"></i> Parent Phone: <strong id="parentPhone">N/A</strong></p>
+          <div class="progress-bar">
+            <div class="progress" id="progressBar" style="width: 0%;">0%</div>
+          </div>
         </div>
       </div>
       <div id="marks" class="section">
         <h1>Academics</h1>
         <p><strong>Explanation:</strong> Check your academic performance with CAT and exam scores across different terms and subjects, along with corresponding grades.</p>
+        <select class="term-select" id="termSelect" onchange="updateMarks()">
+          <option value="term1">Term 1</option>
+          <option value="term2">Term 2</option>
+          <option value="term3">Term 3</option>
+        </select>
         <div class="card">
           <table id="marksTable">
             <thead>
@@ -385,6 +439,7 @@
             <tbody id="marksBody"></tbody>
           </table>
         </div>
+        <p><strong>Note:</strong> For any complaints, please see the teacher in charge of academics.</p>
       </div>
       <div id="fees" class="section">
         <h1>Fees</h1>
@@ -415,11 +470,11 @@
           <h1>Welcome to Borabu TTC Fee Payment Centre</h1>
           <p>Make your payments with ease and confidence!</p>
           <ul class="payment-assurance">
-            <li><i class="fas fa-check-circle"></i> Fast Processing</li>
-            <li><i class="fas fa-check-circle"></i> Reliable Service</li>
-            <li><i class="fas fa-check-circle"></i> Trusted Platform</li>
-            <li><i class="fas fa-check-circle"></i> Secure Transactions</li>
-            <li><i class="fas fa-check-circle"></i> 24/7 Support</li>
+            <li><i class="fas fa-clock"></i> Fast Processing</li>
+            <li><i class="fas fa-tools"></i> Reliable Service</li>
+            <li><i class="fas fa-shield-alt"></i> Trusted Platform</li>
+            <li><i class="fas fa-lock"></i> Secure Transactions</li>
+            <li><i class="fas fa-headset"></i> 24/7 Support</li>
           </ul>
           <button onclick="window.open('https://payment.intasend.com/pay/b90e1c19-33da-4b7d-a654-c4fb72eb9ea7/', '_blank')">Pay Now</button>
           <p>After payment, please contact the Accounts Office to confirm receipt. For issues, visit the office for assistance.</p>
@@ -435,6 +490,10 @@
     </div>
   </div>
   <div id="errorMessage" class="error-message"></div>
+  <footer>
+    <p>Contact: <a href="mailto:info@borabuttc.ac.ke">info@borabuttc.ac.ke</a> | Phone: +254 712 345 678</p>
+    <p>&copy; 2025 Borabu Teachers Training College. All rights reserved.</p>
+  </footer>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
@@ -491,6 +550,40 @@
       window.location.href = "index.html";
     }
 
+    function updateMarks() {
+      const term = document.getElementById("termSelect").value;
+      const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
+      const studentRef = db.ref("users/students/" + regNo);
+      studentRef.once("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const marksBody = document.getElementById("marksBody");
+          marksBody.innerHTML = "";
+          const termData = data.marks?.[term] || data.academics?.[term];
+          let hasMarks = false;
+          if (termData) {
+            hasMarks = true;
+            for (const [subject, catScore] of Object.entries(termData.cat || {})) {
+              const examScore = termData.exam?.[subject] || (termData[subject] || "-");
+              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
+              marksBody.innerHTML += `<tr>
+                <td>${term.replace("term", "Term ")}</td>
+                <td>${subject}</td>
+                <td>${catScore !== undefined ? catScore : "-"}</td>
+                <td>${examScore !== undefined ? examScore : "-"}</td>
+                <td>${grade}</td>
+              </tr>`;
+            }
+          }
+          if (!hasMarks) {
+            marksBody.innerHTML = "<tr><td colspan='5'>No marks available for this term</td></tr>";
+          }
+        }
+      }).catch((error) => {
+        showError("Failed to update marks: " + error.message);
+      });
+    }
+
     window.onload = function() {
       const userType = sessionStorage.getItem("userType");
       const regNo = sessionStorage.getItem("regNo");
@@ -512,7 +605,11 @@
           const data = snapshot.val();
           const profile = data.profile || {};
           document.getElementById("name").textContent = profile.name || data.name || "N/A";
-          document.getElementById("year").textContent = profile.year || data.form?.replace("form", "Year ") || "N/A";
+          const year = profile.year || data.form?.replace("form", "Year ") || "N/A";
+          document.getElementById("year").textContent = year;
+          const progress = year === "Year 1" ? 25 : year === "Year 2" ? 50 : year === "Year 3" ? 75 : year === "Year 4" ? 100 : 0;
+          document.getElementById("progressBar").style.width = progress + "%";
+          document.getElementById("progressBar").textContent = progress + "%";
           document.getElementById("stream").textContent = profile.stream || data.stream || "N/A";
           document.getElementById("gender").textContent = profile.gender || data.gender || "N/A";
           document.getElementById("sponsor").textContent = profile.sponsor || data.sponsor || "N/A";
@@ -521,27 +618,25 @@
 
           const marksBody = document.getElementById("marksBody");
           marksBody.innerHTML = "";
-          const terms = ["term1"];
+          const term = document.getElementById("termSelect").value;
+          const termData = data.marks?.[term] || data.academics?.[term];
           let hasMarks = false;
-          terms.forEach(term => {
-            const termData = data.marks?.[term] || data.academics?.[term];
-            if (termData) {
-              hasMarks = true;
-              for (const [subject, catScore] of Object.entries(termData.cat || {})) {
-                const examScore = termData.exam?.[subject] || (termData[subject] || "-");
-                const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
-                marksBody.innerHTML += `<tr>
-                  <td>${term.replace("term", "Term ")}</td>
-                  <td>${subject}</td>
-                  <td>${catScore !== undefined ? catScore : "-"}</td>
-                  <td>${examScore !== undefined ? examScore : "-"}</td>
-                  <td>${grade}</td>
-                </tr>`;
-              }
+          if (termData) {
+            hasMarks = true;
+            for (const [subject, catScore] of Object.entries(termData.cat || {})) {
+              const examScore = termData.exam?.[subject] || (termData[subject] || "-");
+              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
+              marksBody.innerHTML += `<tr>
+                <td>${term.replace("term", "Term ")}</td>
+                <td>${subject}</td>
+                <td>${catScore !== undefined ? catScore : "-"}</td>
+                <td>${examScore !== undefined ? examScore : "-"}</td>
+                <td>${grade}</td>
+              </tr>`;
             }
-          });
+          }
           if (!hasMarks) {
-            marksBody.innerHTML = "<tr><td colspan='5'>No marks available</td></tr>";
+            marksBody.innerHTML = "<tr><td colspan='5'>No marks available for this term</td></tr>";
           }
 
           const feesData = data.fees || {};

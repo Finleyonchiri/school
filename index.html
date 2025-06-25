@@ -18,31 +18,41 @@
     body {
       background-color: #1a3c6b;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: column;
       min-height: 100vh;
       overflow: auto;
     }
+    header {
+      background-color: #2e0d30;
+      color: #ffd700;
+      text-align: center;
+      padding: 1em 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    header h1 {
+      font-size: 1.5em;
+      margin: 0;
+    }
+    header img {
+      height: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
     .container {
-      height: 45em;
-      width: 37.5em;
-      position: relative;
-      margin: auto;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
     form {
       width: 28em;
       background-color: #ffffff;
-      position: absolute;
-      top: 55%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       padding: 2.5em 3.5em;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
       border-radius: 0.75em;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       border: 2px solid #ffd700;
+      position: relative;
       z-index: 10;
     }
     form label {
@@ -63,6 +73,7 @@
       outline: none;
       width: 100%;
       margin-bottom: 1.2em;
+      transition: border-color 0.3s;
     }
     form select:focus,
     form input:focus {
@@ -119,9 +130,10 @@
       border: 0.2em solid #2e0d30;
       border-radius: 9em 9em 6.75em 6.75em;
       position: absolute;
-      top: 2em;
+      top: -5em;
       left: 50%;
       transform: translateX(-50%);
+      z-index: 5;
     }
     .ear-l,
     .ear-r {
@@ -130,16 +142,16 @@
       width: 3.37em;
       border: 0.2em solid #2e0d30;
       border-radius: 3em 3em 0 0;
-      top: 1.5em;
+      top: -2.5em;
       position: absolute;
     }
     .ear-l {
       transform: rotate(-38deg);
-      left: 11.5em;
+      left: 2.5em;
     }
     .ear-r {
       transform: rotate(38deg);
-      right: 11.5em;
+      right: 2.5em;
     }
     .blush-l,
     .blush-r {
@@ -148,7 +160,7 @@
       width: 1.64em;
       border-radius: 50%;
       position: absolute;
-      top: 4.8em;
+      top: 2.8em;
     }
     .blush-l {
       transform: rotate(25deg);
@@ -165,7 +177,7 @@
       width: 2.4em;
       border-radius: 2.4em;
       position: absolute;
-      top: 2.62em;
+      top: 0.62em;
     }
     .eye-l {
       left: 1.64em;
@@ -197,7 +209,7 @@
       width: 1.2em;
       background-color: #3f3554;
       position: absolute;
-      top: 5.24em;
+      top: 3.24em;
       margin: auto;
       left: 0;
       right: 0;
@@ -224,7 +236,7 @@
       box-shadow: 0 0.22em #3f3554;
     }
     .mouth {
-      top: 6.37em;
+      top: 4.37em;
       left: 3.74em;
     }
     .mouth:before {
@@ -240,18 +252,18 @@
       border: 0.2em solid #2e0d30;
       border-radius: 0.72em 0.72em 2.62em 2.62em;
       position: absolute;
-      top: 12em;
+      top: 9em;
       z-index: 5;
     }
     .hand-l {
-      left: 8em;
+      left: 2em;
     }
     .hand-r {
-      right: 8em;
+      right: 2em;
     }
     .user-type-text {
       position: absolute;
-      top: 14em;
+      top: 11em;
       left: 50%;
       transform: translateX(-50%);
       background-color: #ffffff;
@@ -273,13 +285,13 @@
       border: 0.2em solid #2e0d30;
       border-radius: 3em 3em 1.44em 1.44em;
       position: absolute;
-      top: 38em;
+      bottom: -5em;
     }
     .paw-l {
-      left: 10.5em;
+      left: 2.5em;
     }
     .paw-r {
-      right: 10.5em;
+      right: 2.5em;
     }
     .paw-l:before,
     .paw-r:before {
@@ -305,37 +317,167 @@
       box-shadow: 1.04em 0.44em #ffffff, -1.04em 0.44em #ffffff;
     }
     @media screen and (max-width: 600px) {
+      header h1 {
+        font-size: 1.2em;
+      }
+      header img {
+        height: 30px;
+      }
       .container {
-        font-size: 14px;
-        width: 90%;
-        height: 40em;
+        padding: 10px;
       }
       form {
         width: 90%;
-        padding: 2em;
+        padding: 1.5em 2em;
+      }
+      form label {
+        font-size: 1em;
+      }
+      form select,
+      form input {
+        font-size: 1em;
+      }
+      form button {
+        font-size: 1em;
       }
       .panda-face {
-        height: 7em;
-        width: 8em;
+        height: 6em;
+        width: 7em;
+        top: -3.5em;
       }
-      .ear-l, .ear-r {
+      .ear-l,
+      .ear-r {
+        height: 2em;
+        width: 2.3em;
+        top: -1.5em;
+      }
+      .ear-l {
+        left: 1.5em;
+      }
+      .ear-r {
+        right: 1.5em;
+      }
+      .blush-l,
+      .blush-r {
+        height: 1em;
+        width: 1.3em;
+        top: 2em;
+      }
+      .eye-l,
+      .eye-r {
+        height: 1.8em;
+        width: 1.6em;
+        top: 0.4em;
+      }
+      .eye-l {
+        left: 1.2em;
+      }
+      .eye-r {
+        right: 1.2em;
+      }
+      .eyeball-l,
+      .eyeball-r {
+        height: 0.5em;
+        width: 0.5em;
+        left: 0.5em;
+        top: 0.5em;
+      }
+      .nose {
+        height: 0.8em;
+        width: 0.8em;
+        top: 2.2em;
+      }
+      .nose:before {
+        height: 0.5em;
+        width: 0.1em;
+        top: 0.6em;
+        left: 0.8em;
+      }
+      .mouth {
+        height: 0.6em;
+        width: 0.8em;
+        top: 3em;
+        left: 2.5em;
+      }
+      .mouth:before {
+        height: 0.6em;
+        width: 0.8em;
+        left: 0.7em;
+      }
+      .hand-l,
+      .hand-r {
         height: 2.5em;
-        width: 2.81em;
+        width: 2.2em;
+        top: 6.5em;
       }
-      .paw-l, .paw-r {
-        top: 33em;
+      .hand-l {
+        left: 1.5em;
       }
-      .hand-l, .hand-r {
-        top: 11em;
+      .hand-r {
+        right: 1.5em;
       }
       .user-type-text {
-        top: 13em;
+        top: 8em;
         font-size: 0.9em;
+        padding: 0.3em 0.8em;
+      }
+      .paw-l,
+      .paw-r {
+        height: 2.5em;
+        width: 2.5em;
+        bottom: -3em;
+      }
+      .paw-l {
+        left: 1.5em;
+      }
+      .paw-r {
+        right: 1.5em;
+      }
+      .paw-l:before,
+      .paw-r:before {
+        height: 1.2em;
+        width: 1.5em;
+        top: 1em;
+        left: 0.4em;
+      }
+      .paw-l:after,
+      .paw-r:after {
+        height: 0.4em;
+        width: 0.4em;
+        top: 0.2em;
+        left: 0.9em;
+        box-shadow: 0.7em 0.3em #ffffff, -0.7em 0.3em #ffffff;
+      }
+    }
+    @media screen and (min-width: 601px) and (max-width: 900px) {
+      form {
+        width: 22em;
+      }
+      .panda-face {
+        height: 8em;
+        width: 9em;
+      }
+      .ear-l,
+      .ear-r {
+        height: 2.8em;
+        width: 3em;
+      }
+      .hand-l,
+      .hand-r {
+        top: 8.5em;
+      }
+      .paw-l,
+      .paw-r {
+        bottom: -4.5em;
       }
     }
   </style>
 </head>
 <body>
+  <header>
+    <img src="https://via.placeholder.com/150x150?text=St+George+Logo" alt="BORABU TTC Logo">
+    <h1>BORABU TTC Login</h1>
+  </header>
   <div class="container">
     <form id="loginForm" onsubmit="event.preventDefault(); login();">
       <label for="userType">User Type:</label>
@@ -533,5 +675,3 @@
 
     window.onload = updateUserTypeText;
   </script>
-</body>
-</html>

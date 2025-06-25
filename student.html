@@ -158,9 +158,9 @@
     }
     .card {
       background: #f5f5f5;
-      padding: 10px;
+      padding: 15px;
       border-radius: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       border: 1px solid #e0e0e0;
     }
     table {
@@ -190,25 +190,38 @@
       border-radius: 5px;
       display: inline-block;
     }
-    .announcement {
+    .announcement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .announcement-card {
       background: #fff3e0;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 8px;
       border-left: 4px solid #ff7043;
+      position: relative;
       transition: transform 0.3s ease;
     }
-    .announcement:hover {
-      transform: translateX(8px);
-    }
-    .announcement.unread {
+    .announcement-card.unread {
       background: #ffe0b2;
       font-weight: 500;
     }
-    .announcement.read {
+    .announcement-card.read {
       background: #fff3e0;
     }
-    .mark-read {
+    .announcement-card:hover {
+      transform: translateX(8px);
+    }
+    .announcement-card h4 {
+      margin: 0 0 10px;
+      color: #00695c;
+    }
+    .announcement-card p {
+      margin: 5px 0;
+    }
+    .announcement-card .mark-read {
       background: #ff7043;
       color: #fff;
       border: none;
@@ -217,8 +230,9 @@
       cursor: pointer;
       font-size: 12px;
       transition: background 0.3s ease;
+      margin-top: auto;
     }
-    .mark-read:hover {
+    .announcement-card .mark-read:hover {
       background: #f4511e;
     }
     button {
@@ -315,10 +329,24 @@
       border-radius: 5px;
       border: 1px solid #b0bec5;
     }
-    .announcements-list {
-      max-height: 40vh;
-      overflow-y: auto;
+    .announcements-nav {
       margin-bottom: 10px;
+    }
+    .announcements-nav button {
+      margin-right: 10px;
+      background: #00695c;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+    }
+    .announcements-nav button.active {
+      background: #ff7043;
+    }
+    .announcements-nav button:hover {
+      background: #004d40;
     }
     footer {
       background: #00695c;
@@ -365,8 +393,8 @@
       footer {
         padding: 5px 0;
       }
-      .announcements-list {
-        max-height: 30vh;
+      .announcement-grid {
+        grid-template-columns: 1fr;
       }
     }
     @media (min-width: 769px) {
@@ -423,7 +451,7 @@
           <p><i class="fas fa-users"></i> Parent Name: <strong id="parentName">N/A</strong></p>
           <p><i class="fas fa-phone"></i> Parent Phone: <strong id="parentPhone">N/A</strong></p>
           <div class="progress-bar">
-            <div class="progress" id="progressBar" style="width: 0%;">0%</div>
+            <div class="progress" id="progressBar" style="width: 0%;">0% Graduation Tracker</div>
           </div>
         </div>
       </div>
@@ -473,6 +501,7 @@
             <tbody id="transactionsBody"></tbody>
           </table>
         </div>
+        <button onclick="downloadFeePDF()">Download Fee PDF</button>
       </div>
       <div id="payFees" class="section">
         <h1>Pay Fees</h1>
@@ -494,8 +523,12 @@
       <div id="announcements" class="section">
         <h1>Announcements</h1>
         <p><strong>Explanation:</strong> Stay updated with the latest news, notices, and messages from teachers or administrators.</p>
+        <div class="announcements-nav">
+          <button id="generalBtn" class="active" onclick="showAnnouncements('general')">General</button>
+          <button id="individualBtn" onclick="showAnnouncements('individual')">Individual</button>
+        </div>
         <div class="card">
-          <div class="announcements-list" id="announcementsList"></div>
+          <div class="announcement-grid" id="announcementsContainer"></div>
         </div>
       </div>
     </div>
@@ -541,8 +574,8 @@
             return users[key].name || email;
           }
         }
-        return email;
-      }).catch(() => email);
+        return email.replace(".stacc@moke.ac", "");
+      }).catch(() => email.replace(".stacc@moke.ac", ""));
     }
 
     function toggleMenu() {
@@ -609,13 +642,14 @@
       doc.text("Borabu Teacher's Training College", 70, 20);
       doc.setFontSize(10);
       doc.text("P.O. Box 443, Nyamira", 85, 26);
-      doc.text(`Date: ${today}`, 150, 26);
+      doc.text("Date: " + today, 150, 26);
 
       doc.setFontSize(12);
-      doc.text(`Student Name: ${name}`, 20, 40);
-      doc.text(`Reg No: ${regNo}`, 20, 48);
-      doc.text(`Stream: ${stream}`, 20, 56);
-      doc.text(`Year: ${year}`, 20, 64);
+      doc.text("Name: " + name, 20, 40);
+      doc.text("Reg No: " + regNo, 20, 48);
+      doc.text("Stream: " + stream, 20, 56);
+      doc.text("Year: " + year, 20, 64);
+      doc.text("Course: Diploma in Primary Education", 20, 72);
 
       const rows = [];
       if (marksBody.querySelectorAll("tr").length > 0) {
@@ -624,20 +658,73 @@
           rows.push(cols);
         });
         doc.autoTable({
-          startY: 74,
+          startY: 82,
           head: [["Term", "Subject", "CAT Score", "Exam Score", "Grade"]],
           body: rows,
           theme: 'grid',
           styles: { cellPadding: 2, fontSize: 10 },
+          headStyles: { fillColor: [255, 202, 40], textColor: [255, 255, 255] },
         });
       } else {
-        doc.text("No marks available for this term", 20, 74);
+        doc.text("No marks available for this term", 20, 82);
       }
 
-      doc.text("Lecturer: Mr. Mojo", 20, 140);
-      doc.text("Assistant: Mrs. Mojo", 120, 140);
+      doc.setFontSize(10);
+      doc.text("Lecturer: Mr. Mojo", 20, 280);
+      doc.text("Assistant: Mrs. Mojo", 120, 280);
 
       doc.save(`${name.replace(/ /g, "_")}_Report.pdf`);
+    }
+
+    function downloadFeePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const name = document.getElementById("name").textContent;
+      const regNo = document.getElementById("regNo").textContent;
+      const today = new Date().toLocaleDateString();
+      const total = document.getElementById("feesTotal").textContent.replace(/,/g, "");
+      const paid = document.getElementById("feesPaid").textContent.replace(/,/g, "");
+      const balance = document.getElementById("feesBalance").textContent.replace(/,/g, "");
+      const statement = document.getElementById("feesStatement").textContent;
+      const transactionsBody = document.getElementById("transactionsBody");
+
+      doc.setFontSize(16);
+      doc.text("Borabu Teacher's Training College", 70, 20);
+      doc.setFontSize(10);
+      doc.text("P.O. Box 443, Nyamira", 85, 26);
+      doc.text("Date: " + today, 150, 26);
+
+      doc.setFontSize(12);
+      doc.text("Name: " + name, 20, 40);
+      doc.text("Reg No: " + regNo, 20, 48);
+      doc.text("Total Fees: " + total, 20, 56);
+      doc.text("Paid: " + paid, 20, 64);
+      doc.text("Balance: " + balance, 20, 72);
+      doc.text("Statement: " + statement, 20, 80);
+
+      const rows = [];
+      if (transactionsBody.querySelectorAll("tr").length > 0) {
+        transactionsBody.querySelectorAll("tr").forEach(row => {
+          const cols = Array.from(row.querySelectorAll("td")).map(td => td.textContent);
+          rows.push(cols);
+        });
+        doc.autoTable({
+          startY: 90,
+          head: [["Date", "Amount", "Method", "Payer", "Transaction Code"]],
+          body: rows,
+          theme: 'grid',
+          styles: { cellPadding: 2, fontSize: 10 },
+          headStyles: { fillColor: [255, 202, 40], textColor: [255, 255, 255] },
+        });
+      } else {
+        doc.text("No transactions available", 20, 90);
+      }
+
+      doc.setFontSize(10);
+      doc.text("Accounts Office", 20, 280);
+      doc.text("Contact: +254 712 345 678", 120, 280);
+
+      doc.save(`${name.replace(/ /g, "_")}_Fee_Report.pdf`);
     }
 
     window.onload = function() {
@@ -665,7 +752,7 @@
           document.getElementById("year").textContent = year;
           const progress = year === "Year 1" ? 25 : year === "Year 2" ? 50 : year === "Year 3" ? 75 : year === "Year 4" ? 100 : 0;
           document.getElementById("progressBar").style.width = progress + "%";
-          document.getElementById("progressBar").textContent = progress + "%";
+          document.getElementById("progressBar").textContent = progress + "% Graduation Tracker";
           document.getElementById("stream").textContent = profile.stream || data.stream || "N/A";
           document.getElementById("gender").textContent = profile.gender || data.gender || "N/A";
           document.getElementById("sponsor").textContent = profile.sponsor || data.sponsor || "N/A";
@@ -746,59 +833,75 @@
       });
 
       const normalizedRegNo = regNo.replace(/\//g, "_");
-      db.ref("announcements").once("value", (snapshot) => {
-        const generalSnaps = ["ann1", "ann2", "ann3"].map(key => snapshot.child(key).val()).filter(s => s);
-        const individualSnap = snapshot.child("individual").child(normalizedRegNo).val() || {};
-        let announcements = [];
+      const announcementsRef = db.ref("announcements");
+      const announcementsContainer = document.getElementById("announcementsContainer");
 
-        Promise.all(generalSnaps.map(snap => {
-          if (snap && snap.author) {
-            return getUserNameByEmail(snap.author + ".stacc@moke.ac", snap.role === "accountant" ? "accountants" : "teachers").then(name => {
-              announcements.push({ ...snap, key: snap.key || "ann1", type: "general", author: name });
-            });
-          }
-        })).then(() => {
-          Object.entries(individualSnap).forEach(([key, value]) => {
-            if (value && value.sender) {
-              getUserNameByEmail(value.sender, "teachers").then(name => {
-                announcements.push({ ...value, key, type: "individual", sender: name });
-              });
+      function updateAnnouncements(type) {
+        announcementsContainer.innerHTML = "<p><i class='fas fa-spinner fa-spin'></i> Loading announcements...</p>";
+        const isIndividual = type === "individual";
+        const snapRef = isIndividual ? announcementsRef.child("individual").child(normalizedRegNo) : announcementsRef.child("general");
+        snapRef.on("value", (snapshot) => {
+          const announcements = [];
+          snapshot.forEach(childSnapshot => {
+            const value = childSnapshot.val();
+            if (value && (value.message || value.text)) {
+              const sender = value.sender || value.teacher || value.accountant || (isIndividual ? "Unknown" : value.author);
+              if (sender) {
+                getUserNameByEmail(sender + (sender.includes("@") ? "" : ".stacc@moke.ac"), value.role === "accountant" ? "accountants" : "teachers").then(name => {
+                  announcements.push({ ...value, key: childSnapshot.key, type, sender: name, date: value.date || new Date().toISOString() });
+                  renderAnnouncements(announcements);
+                });
+              } else {
+                announcements.push({ ...value, key: childSnapshot.key, type, sender: "Unknown", date: value.date || new Date().toISOString() });
+                renderAnnouncements(announcements);
+              }
             }
           });
-
-          const announcementsList = document.getElementById("announcementsList");
-          announcementsList.innerHTML = "";
           if (announcements.length === 0) {
-            announcementsList.innerHTML = "<p>No announcements available.</p>";
-            return;
+            announcementsContainer.innerHTML = `<p>No ${isIndividual ? "individual" : "general"} announcements available.</p>`;
           }
-
-          announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
-          announcements.forEach(ann => {
-            const isRead = localStorage.getItem(`announcement_${ann.key}_${normalizedRegNo}`) === "read";
-            const maker = ann.type === "general" ? ann.author : ann.sender;
-            const div = document.createElement("div");
-            div.className = `announcement ${isRead ? "read" : "unread"}`;
-            div.innerHTML = `
-              <h2>${ann.title || ann.text || ann.message}</h2>
-              <p>${ann.message || ann.text}</p>
-              <p><strong>By:</strong> <strong>${maker || "Unknown"}</strong> (${ann.date})</p>
-              ${ann.type === "individual" ? "<p><strong>To:</strong> You</p>" : ""}
-              <button class="mark-read" onclick="markAsRead('${ann.key}')">Mark as Read</button>
-            `;
-            announcementsList.appendChild(div);
-          });
+        }, (error) => {
+          showError("Failed to load announcements: " + error.message);
+          console.log("Error loading announcements:", error);
         });
-      }).catch((error) => {
-        showError("Failed to load announcements: " + error.message);
-        console.log("Error loading announcements:", error);
-      });
-    };
+      }
 
-    function markAsRead(key) {
-      const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
-      localStorage.setItem(`announcement_${key}_${regNo}`, "read");
-      window.onload();
-    }
+      function renderAnnouncements(announcements) {
+        announcementsContainer.innerHTML = "";
+        announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
+        announcements.forEach(ann => {
+          const isRead = localStorage.getItem(`announcement_${ann.key}_${normalizedRegNo}`) === "read";
+          const div = document.createElement("div");
+          div.className = `announcement-card ${isRead ? "read" : "unread"}`;
+          div.innerHTML = `
+            <h4>${ann.title || ann.text || ann.message} (${new Date(ann.date).toLocaleDateString()})</h4>
+            <p>${ann.message || ann.text}</p>
+            <p><strong>By:</strong> ${ann.sender || "Unknown"}</p>
+            ${ann.type === "individual" ? '<p><strong>To:</strong> You</p>' : ""}
+            <button class="mark-read" onclick="markAsRead('${ann.key}')">Mark as Read</button>
+          `;
+          announcementsContainer.appendChild(div);
+        });
+      }
+
+      updateAnnouncements("general");
+      window.showAnnouncements = function(type) {
+        const generalBtn = document.getElementById("generalBtn");
+        const individualBtn = document.getElementById("individualBtn");
+        if (type === "general") {
+          generalBtn.classList.add("active");
+          individualBtn.classList.remove("active");
+        } else {
+          generalBtn.classList.remove("active");
+          individualBtn.classList.add("active");
+        }
+        updateAnnouncements(type);
+      };
+
+      function markAsRead(key) {
+        const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
+        localStorage.setItem(`announcement_${key}_${regNo}`, "read");
+        window.location.reload();
+      }
+    };
   </script>
-</html>

@@ -1,677 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - BORABU TTC</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Under Maintenance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
     }
-    body {
-      background-color: #1a3c6b;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow: auto;
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
-    header {
-      background-color: #2e0d30;
-      color: #ffd700;
-      text-align: center;
-      padding: 1em 0;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    }
-    header h1 {
-      font-size: 1.5em;
-      margin: 0;
-    }
-    header img {
-      height: 40px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-    .container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    form {
-      width: 28em;
-      background-color: #ffffff;
-      padding: 2.5em 3.5em;
-      border-radius: 0.75em;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      border: 2px solid #ffd700;
-      position: relative;
-      z-index: 10;
-    }
-    form label {
-      display: block;
-      margin-bottom: 0.3em;
-      font-weight: 600;
-      color: #2e0d30;
-      font-size: 1.1em;
-    }
-    form select,
-    form input {
-      font-size: 1.1em;
-      font-weight: 400;
-      color: #3f3554;
-      padding: 0.5em;
-      border: none;
-      border-bottom: 0.15em solid #3f3554;
-      outline: none;
-      width: 100%;
-      margin-bottom: 1.2em;
-      transition: border-color 0.3s;
-    }
-    form select:focus,
-    form input:focus {
-      border-color: #4a90e2;
-    }
-    form button {
-      font-size: 1.1em;
-      padding: 1em 0;
-      border-radius: 2em;
-      border: none;
-      cursor: pointer;
-      background-color: #4a90e2;
-      color: #ffffff;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      margin-top: 1em;
-      transition: background-color 0.5s, transform 0.2s;
-    }
-    form button:hover {
-      background-color: #1a3c6b;
-      transform: translateY(-2px);
-    }
-    .error-message {
-      color: #d32f2f;
-      font-size: 1em;
-      margin-top: 1em;
-      text-align: center;
-      display: none;
-    }
-    .forgot-password {
-      display: block;
-      margin-top: 1em;
-      color: #4a90e2;
-      font-size: 1em;
-      text-align: center;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-    .forgot-password:hover {
-      color: #2e0d30;
-      text-decoration: underline;
-    }
-    #resetForm {
-      display: none;
-      margin-top: 1.5em;
-    }
-    .panda-face {
-      height: 9em;
-      width: 10em;
-      background: url('https://via.placeholder.com/150x150?text=St+George+Logo') no-repeat center;
-      background-size: contain;
-      border: 0.2em solid #2e0d30;
-      border-radius: 9em 9em 6.75em 6.75em;
-      position: absolute;
-      top: -5em;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 5;
-    }
-    .ear-l,
-    .ear-r {
-      background-color: #3f3554;
-      height: 3em;
-      width: 3.37em;
-      border: 0.2em solid #2e0d30;
-      border-radius: 3em 3em 0 0;
-      top: -2.5em;
-      position: absolute;
-    }
-    .ear-l {
-      transform: rotate(-38deg);
-      left: 2.5em;
-    }
-    .ear-r {
-      transform: rotate(38deg);
-      right: 2.5em;
-    }
-    .blush-l,
-    .blush-r {
-      background-color: #ff8bb1;
-      height: 1.2em;
-      width: 1.64em;
-      border-radius: 50%;
-      position: absolute;
-      top: 2.8em;
-    }
-    .blush-l {
-      transform: rotate(25deg);
-      left: 1.2em;
-    }
-    .blush-r {
-      transform: rotate(-25deg);
-      right: 1.2em;
-    }
-    .eye-l,
-    .eye-r {
-      background-color: #3f3554;
-      height: 2.62em;
-      width: 2.4em;
-      border-radius: 2.4em;
-      position: absolute;
-      top: 0.62em;
-    }
-    .eye-l {
-      left: 1.64em;
-      transform: rotate(-20deg);
-    }
-    .eye-r {
-      right: 1.64em;
-      transform: rotate(20deg);
-    }
-    .eyeball-l,
-    .eyeball-r {
-      height: 0.72em;
-      width: 0.72em;
-      background-color: #ffffff;
-      border-radius: 50%;
-      position: absolute;
-      left: 0.72em;
-      top: 0.72em;
-      transition: 1s all;
-    }
-    .eyeball-l {
-      transform: rotate(20deg);
-    }
-    .eyeball-r {
-      transform: rotate(-20deg);
-    }
-    .nose {
-      height: 1.2em;
-      width: 1.2em;
-      background-color: #3f3554;
-      position: absolute;
-      top: 3.24em;
-      margin: auto;
-      left: 0;
-      right: 0;
-      border-radius: 1.44em 0 0 0.3em;
-      transform: rotate(45deg);
-    }
-    .nose:before {
-      content: "";
-      position: absolute;
-      background-color: #3f3554;
-      height: 0.72em;
-      width: 0.12em;
-      transform: rotate(-45deg);
-      top: 0.9em;
-      left: 1.2em;
-    }
-    .mouth,
-    .mouth:before {
-      height: 0.9em;
-      width: 1.12em;
-      background-color: transparent;
-      position: absolute;
-      border-radius: 50%;
-      box-shadow: 0 0.22em #3f3554;
-    }
-    .mouth {
-      top: 4.37em;
-      left: 3.74em;
-    }
-    .mouth:before {
-      content: "";
-      position: absolute;
-      left: 1.04em;
-    }
-    .hand-l,
-    .hand-r {
-      background-color: #3f3554;
-      height: 3.37em;
-      width: 3em;
-      border: 0.2em solid #2e0d30;
-      border-radius: 0.72em 0.72em 2.62em 2.62em;
-      position: absolute;
-      top: 9em;
-      z-index: 5;
-    }
-    .hand-l {
-      left: 2em;
-    }
-    .hand-r {
-      right: 2em;
-    }
-    .user-type-text {
-      position: absolute;
-      top: 11em;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #ffffff;
-      padding: 0.5em 1em;
-      border-radius: 0.5em;
-      border: 0.2em solid #2e0d30;
-      font-size: 1em;
-      font-weight: 600;
-      color: #2e0d30;
-      text-align: center;
-      z-index: 10;
-      min-width: 12em;
-    }
-    .paw-l,
-    .paw-r {
-      background-color: #3f3554;
-      height: 3.75em;
-      width: 3.75em;
-      border: 0.2em solid #2e0d30;
-      border-radius: 3em 3em 1.44em 1.44em;
-      position: absolute;
-      bottom: -5em;
-    }
-    .paw-l {
-      left: 2.5em;
-    }
-    .paw-r {
-      right: 2.5em;
-    }
-    .paw-l:before,
-    .paw-r:before {
-      position: absolute;
-      content: "";
-      background-color: #ffffff;
-      height: 1.64em;
-      width: 2.1em;
-      top: 1.34em;
-      left: 0.66em;
-      border-radius: 1.87em 1.87em 0.72em 0.72em;
-    }
-    .paw-l:after,
-    .paw-r:after {
-      position: absolute;
-      content: "";
-      background-color: #ffffff;
-      height: 0.6em;
-      width: 0.6em;
-      border-radius: 50%;
-      top: 0.37em;
-      left: 1.34em;
-      box-shadow: 1.04em 0.44em #ffffff, -1.04em 0.44em #ffffff;
-    }
-    @media screen and (max-width: 600px) {
-      header h1 {
-        font-size: 1.2em;
-      }
-      header img {
-        height: 30px;
-      }
-      .container {
-        padding: 10px;
-      }
-      form {
-        width: 90%;
-        padding: 1.5em 2em;
-      }
-      form label {
-        font-size: 1em;
-      }
-      form select,
-      form input {
-        font-size: 1em;
-      }
-      form button {
-        font-size: 1em;
-      }
-      .panda-face {
-        height: 6em;
-        width: 7em;
-        top: -3.5em;
-      }
-      .ear-l,
-      .ear-r {
-        height: 2em;
-        width: 2.3em;
-        top: -1.5em;
-      }
-      .ear-l {
-        left: 1.5em;
-      }
-      .ear-r {
-        right: 1.5em;
-      }
-      .blush-l,
-      .blush-r {
-        height: 1em;
-        width: 1.3em;
-        top: 2em;
-      }
-      .eye-l,
-      .eye-r {
-        height: 1.8em;
-        width: 1.6em;
-        top: 0.4em;
-      }
-      .eye-l {
-        left: 1.2em;
-      }
-      .eye-r {
-        right: 1.2em;
-      }
-      .eyeball-l,
-      .eyeball-r {
-        height: 0.5em;
-        width: 0.5em;
-        left: 0.5em;
-        top: 0.5em;
-      }
-      .nose {
-        height: 0.8em;
-        width: 0.8em;
-        top: 2.2em;
-      }
-      .nose:before {
-        height: 0.5em;
-        width: 0.1em;
-        top: 0.6em;
-        left: 0.8em;
-      }
-      .mouth {
-        height: 0.6em;
-        width: 0.8em;
-        top: 3em;
-        left: 2.5em;
-      }
-      .mouth:before {
-        height: 0.6em;
-        width: 0.8em;
-        left: 0.7em;
-      }
-      .hand-l,
-      .hand-r {
-        height: 2.5em;
-        width: 2.2em;
-        top: 6.5em;
-      }
-      .hand-l {
-        left: 1.5em;
-      }
-      .hand-r {
-        right: 1.5em;
-      }
-      .user-type-text {
-        top: 8em;
-        font-size: 0.9em;
-        padding: 0.3em 0.8em;
-      }
-      .paw-l,
-      .paw-r {
-        height: 2.5em;
-        width: 2.5em;
-        bottom: -3em;
-      }
-      .paw-l {
-        left: 1.5em;
-      }
-      .paw-r {
-        right: 1.5em;
-      }
-      .paw-l:before,
-      .paw-r:before {
-        height: 1.2em;
-        width: 1.5em;
-        top: 1em;
-        left: 0.4em;
-      }
-      .paw-l:after,
-      .paw-r:after {
-        height: 0.4em;
-        width: 0.4em;
-        top: 0.2em;
-        left: 0.9em;
-        box-shadow: 0.7em 0.3em #ffffff, -0.7em 0.3em #ffffff;
-      }
-    }
-    @media screen and (min-width: 601px) and (max-width: 900px) {
-      form {
-        width: 22em;
-      }
-      .panda-face {
-        height: 8em;
-        width: 9em;
-      }
-      .ear-l,
-      .ear-r {
-        height: 2.8em;
-        width: 3em;
-      }
-      .hand-l,
-      .hand-r {
-        top: 8.5em;
-      }
-      .paw-l,
-      .paw-r {
-        bottom: -4.5em;
-      }
+    .animate-pulse-slow { animation: pulse 3s ease-in-out infinite; }
+    .animate-spin-slow { animation: spin 5s linear infinite; }
+    .circuit-bg {
+      background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M10 10h80m-80 20h80m-80 20h80m-80 20h80M10 10v80m20-80v80m20-80v80m20-80v80" stroke="%23E5E7EB" stroke-width="2" opacity="0.2"/%3E%3C/svg%3E');
+      background-repeat: repeat;
     }
   </style>
 </head>
-<body>
-  <header>
-    <img src="https://via.placeholder.com/150x150?text=St+George+Logo" alt="BORABU TTC Logo">
-    <h1>BORABU TTC Login</h1>
-  </header>
-  <div class="container">
-    <form id="loginForm" onsubmit="event.preventDefault(); login();">
-      <label for="userType">User Type:</label>
-      <select id="userType" onchange="updateUserTypeText()">
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-        <option value="accountant">Accountant</option>
-        <option value="admin">Admin</option>
-      </select>
-      <label for="username">Username:</label>
-      <input type="text" id="username" placeholder="Reg No (e.g., AID/00118/024) or Email">
-      <label for="password">Password:</label>
-      <input type="password" id="password" placeholder="Password">
-      <button type="submit">Login</button>
-      <a class="forgot-password" onclick="showResetForm()">Forgot Password?</a>
-      <div id="resetForm">
-        <label for="resetUsername">Reg No or Email:</label>
-        <input type="text" id="resetUsername" placeholder="Reg No or Email">
-        <label for="newPassword">New Password (Students Only):</label>
-        <input type="password" id="newPassword" placeholder="New Password">
-        <button type="button" onclick="resetPassword()">Reset Password</button>
-      </div>
-      <div id="errorMessage" class="error-message"></div>
-    </form>
-    <div class="ear-l"></div>
-    <div class="ear-r"></div>
-    <div class="panda-face"></div>
-    <div class="hand-l"></div>
-    <div class="hand-r"></div>
-    <div class="user-type-text" id="userTypeText">Student Logging In</div>
-    <div class="paw-l"></div>
-    <div class="paw-r"></div>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6 sm:p-12 circuit-bg">
+  <!-- LOGO -->
+  <div class="mb-8">
+    <img src="https://cdn-icons-png.flaticon.com/512/1087/1087840.png" alt="System Logo" class="w-24 h-24 sm:w-32 sm:h-32 animate-spin-slow">
   </div>
 
+  <!-- TITLE -->
+  <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-blue-400 mb-4 text-center">System Under Maintenance</h1>
+
+  <!-- DESCRIPTION -->
+  <p class="text-lg sm:text-xl text-gray-300 max-w-3xl text-center leading-relaxed mb-8">
+    Our system is currently undergoing scheduled maintenance to bring you a faster, more reliable experience. <br class="hidden sm:block">
+    We’re upgrading our infrastructure and will be back online soon. Thank you for your understanding!
+  </p>
+
+  <!-- MAINTENANCE ILLUSTRATION -->
+  <img src="https://cdn-icons-png.flaticon.com/512/1242/1242637.png" alt="Maintenance Icon" class="w-48 sm:w-64 max-w-full mb-8 animate-pulse-slow">
+
+  <!-- PROGRESS BAR -->
+  <div class="w-full max-w-md mb-8">
+    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+      <div class="h-full bg-blue-500 animate-pulse" style="width: 60%;"></div>
+    </div>
+    <p class="text-sm text-gray-400 text-center mt-2">Maintenance Progress: 60%</p>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="text-center mb-8">
+    <p class="text-base sm:text-lg text-gray-300">Having issues? Reach out to our team!</p>
+    <a href="mailto:support@systemadmin.com" class="text-blue-400 font-semibold underline hover:text-blue-600 transition-colors">Contact Support</a>
+  </div>
+
+  <!-- MAINTENANCE TOOLS -->
+  <div class="flex flex-wrap justify-center gap-6 sm:gap-8 mb-10">
+    <div class="flex flex-col items-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/1022/1257627.png" alt="Server" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 transition-transform hover:scale-110">
+      <span class="text-sm sm:text-base text-gray-300">Server Upgrade</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920344.png" alt="Code" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 transition-transform hover:scale-110">
+      <span class="text-sm sm:text-base text-gray-300">Code Optimization</span>
+    </div>
+    <div class="flex flex-col items-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/1087/1087840.png" alt="Database" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 transition-transform hover:scale-110">
+      <span class="text-sm sm:text-base text-gray-300">Database Tuning</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="text-gray-500 text-sm sm:text-base text-center">
+    © 2025 System Admin Team | All Rights Reserved
+  </footer>
+
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
-      authDomain: "web-reg-cbf2f.firebaseapp.com",
-      databaseURL: "https://web-reg-cbf2f-default-rtdb.firebaseio.com",
-      projectId: "web-reg-cbf2f",
-      storageBucket: "web-reg-cbf2f.firebasestorage.app",
-      messagingSenderId: "431303341740",
-      appId: "1:431303341740:web:542070e4c471cd7c8ad109",
-      measurementId: "G-164GMVZQY3"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    function updateUserTypeText() {
-      const userType = document.getElementById("userType").value;
-      const userTypeText = document.getElementById("userTypeText");
-      userTypeText.textContent = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Logging In`;
-    }
-
-    function showError(message) {
-      const errorDiv = document.getElementById("errorMessage");
-      errorDiv.textContent = message;
-      errorDiv.style.display = "block";
-      setTimeout(() => { errorDiv.style.display = "none"; }, 5000);
-    }
-
-    function hideError() {
-      const errorDiv = document.getElementById("errorMessage");
-      errorDiv.style.display = "none";
-    }
-
-    function validateRegNo(regNo) {
-      const invalidChars = /[.#$\[\]]/;
-      return !invalidChars.test(regNo);
-    }
-
-    function showResetForm() {
-      document.getElementById("resetForm").style.display = "block";
-      document.getElementById("username").disabled = true;
-      document.getElementById("password").disabled = true;
-      document.getElementById("userType").disabled = true;
-    }
-
-    function resetPassword() {
-      const userType = document.getElementById("userType").value;
-      const resetUsername = document.getElementById("resetUsername").value.trim();
-      const newPassword = document.getElementById("newPassword").value;
-
-      if (!resetUsername) {
-        showError("Please enter your Reg No or Email.");
-        return;
+    // Simulate progress bar animation
+    const progressBar = document.querySelector('.bg-blue-500');
+    let progress = 60;
+    setInterval(() => {
+      if (progress < 90) {
+        progress += Math.random() * 5;
+        progressBar.style.width = `${Math.min(progress, 90)}%`;
+        document.querySelector('.text-gray-400').textContent = `Maintenance Progress: ${Math.round(progress)}%`;
       }
+    }, 3000);
 
-      if (userType === "student") {
-        if (!newPassword) {
-          showError("Please enter a new password.");
-          return;
-        }
-        const normalizedUsername = resetUsername.replace(/\//g, "_");
-        if (!validateRegNo(normalizedUsername)) {
-          showError("Invalid Reg No format. Use format like AID/00118/024 and avoid characters like '.', '#', '$', '[', or ']'.");
-          return;
-        }
-        const studentRef = db.ref("users/students/" + normalizedUsername);
-        studentRef.once("value", (snapshot) => {
-          if (snapshot.exists()) {
-            studentRef.child("profile").update({ password: newPassword })
-              .then(() => {
-                showError("Password reset successfully! Please log in.");
-                document.getElementById("resetForm").style.display = "none";
-                document.getElementById("username").disabled = false;
-                document.getElementById("password").disabled = false;
-                document.getElementById("userType").disabled = false;
-              })
-              .catch(error => showError("Failed to reset password: " + error.message));
-          } else {
-            showError("Reg No not found.");
-          }
-        }).catch(error => showError("Error checking Reg No: " + error.message));
-      } else {
-        auth.sendPasswordResetEmail(resetUsername)
-          .then(() => {
-            showError("Password reset email sent! Check your inbox.");
-            document.getElementById("resetForm").style.display = "none";
-            document.getElementById("username").disabled = false;
-            document.getElementById("password").disabled = false;
-            document.getElementById("userType").disabled = false;
-          })
-          .catch(error => showError("Failed to send reset email: " + error.message));
-      }
-    }
-
-    function login() {
-      const userType = document.getElementById("userType").value;
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value;
-
-      if (!username || !password) {
-        showError("Please enter both username and password.");
-        return;
-      }
-
-      if (userType === "student") {
-        const normalizedUsername = username.replace(/\//g, "_");
-        if (!validateRegNo(normalizedUsername)) {
-          showError("Invalid Reg No format. Use format like AID/00118/024 and avoid characters like '.', '#', '$', '[', or ']'.");
-          return;
-        }
-
-        const studentRef = db.ref("users/students/" + normalizedUsername);
-        studentRef.once("value", (snapshot) => {
-          if (snapshot.exists()) {
-            const student = snapshot.val();
-            if (student.profile.password === password) {
-              sessionStorage.setItem("userType", "student");
-              sessionStorage.setItem("regNo", normalizedUsername);
-              sessionStorage.setItem("studentName", student.profile.name || "Unknown");
-              console.log("Student login successful, sessionStorage set:", sessionStorage.getItem("userType"), sessionStorage.getItem("regNo"), sessionStorage.getItem("studentName"));
-              window.location.href = "student.html";
-            } else {
-              showError("Incorrect password.");
-            }
-          } else {
-            showError("Reg No not found.");
-          }
-        }).catch((error) => showError("Failed to login: " + error.message));
-      } else {
-        const email = username;
-        if (userType === "accountant" || userType === "admin") {
-          const emailPattern = /^[a-zA-Z0-9._%+-]+@[\w-]+\.ac$/;
-          if (!emailPattern.test(email)) {
-            showError(`${userType.charAt(0).toUpperCase() + userType.slice(1)} email must be in the format <something>@<domain>.ac (e.g., admin1.stacc@moke.ac).`);
-            return;
-          }
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            sessionStorage.setItem("userType", userType);
-            sessionStorage.setItem("username", email);
-            sessionStorage.setItem("uid", userCredential.user.uid);
-            console.log("Non-student login successful, sessionStorage set:", sessionStorage.getItem("userType"), sessionStorage.getItem("username"), sessionStorage.getItem("uid"));
-            const redirectUrl = userType === "teacher" ? "teacher.html" :
-                                userType === "accountant" ? "accountant.html" : "admin.html";
-            window.location.href = redirectUrl;
-          })
-          .catch((error) => {
-            if (error.code === "auth/user-not-found") {
-              showError("Email not found.");
-            } else if (error.code === "auth/wrong-password") {
-              showError("Incorrect password.");
-            } else {
-              showError("Failed to login: " + error.message);
-            }
-          });
-      }
-    }
-
-    window.onload = updateUserTypeText;
+    // Hover effect for tools
+    document.querySelectorAll('.transition-transform').forEach(img => {
+      img.addEventListener('click', () => {
+        img.classList.add('animate-bounce');
+        setTimeout(() => img.classList.remove('animate-bounce'), 500);
+      });
+    });
   </script>
+</body>
+</html>

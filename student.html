@@ -3,73 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Portal - Borabu Teacher's Training College</title>
+  <title>Student Portal - Borabu TTC</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
+    * {
+      box-sizing: border-box;
       margin: 0;
-      background: linear-gradient(135deg, #e0f7fa, #f8e1e1);
-      min-height: 100vh;
-      color: #2d2d2d;
+      padding: 0;
     }
-    .container {
+    body {
+      font-family: 'Arial, sans-serif';
+      background: #f0f4f8;
+      min-height: 100vh;
+      color: #2c3e50;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden;
+    }
+    .container {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     .header {
-      background: #00695c;
-      color: #fff;
-      padding: 15px 20px;
+      background: #3498db;
+      color: #ffffff;
+      padding: 16px 24px;
       text-align: center;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      position: fixed;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: sticky;
       top: 0;
-      width: 100%;
       z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .top-menu {
-      position: fixed;
-      top: 70px;
-      right: 10px;
-      z-index: 1000;
+    .header h1 {
+      font-size: 24px;
+      margin: 0;
     }
     .menu-toggle {
-      font-size: 24px;
-      color: #fff;
-      background: #00695c;
+      background: none;
       border: none;
-      border-radius: 5px;
-      padding: 8px 12px;
+      color: #ffffff;
+      font-size: 28px;
       cursor: pointer;
+      padding: 8px;
       transition: transform 0.3s ease;
     }
     .menu-toggle:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
     }
     .menu-content {
       display: none;
       position: absolute;
-      top: 40px;
-      right: 0;
-      background: #00695c;
-      border-radius: 5px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      width: 200px;
+      top: 60px;
+      right: 24px;
+      background: #2980b9;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      width: 220px;
+      z-index: 1000;
+      animation: slideDown 0.3s ease-out;
     }
     .menu-content.active {
       display: block;
     }
     .menu-content a, .menu-content button {
-      color: #fff;
+      color: #ffffff;
       padding: 12px 20px;
       text-decoration: none;
       display: block;
@@ -82,341 +92,484 @@
       transition: background 0.3s ease;
     }
     .menu-content a:hover, .menu-content button:hover {
-      background: #004d40;
-    }
-    .sidebar {
-      width: 250px;
-      height: calc(100vh - 70px);
-      position: fixed;
-      top: 70px;
-      left: 0;
-      padding: 20px 0;
-      background: linear-gradient(to bottom, #00695c, #004d40);
-      z-index: 900;
-    }
-    .sidebar .profile {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .sidebar .profile img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-    }
-    .sidebar .profile p {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 600;
-      margin: 5px 0;
-      display: inline-flex;
-      align-items: center;
+      background: #1abc9c;
     }
     .main-content {
       flex: 1;
-      padding: 90px 15px 60px;
+      padding: 24px;
       overflow-y: auto;
-      margin-left: 250px;
     }
-    .quote {
-      background: #e0f2f1;
-      padding: 15px;
+    .slider {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 24px auto;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .slider img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: none;
+      transition: opacity 0.5s ease;
+    }
+    .slider img.active {
+      display: block;
+      opacity: 1;
+    }
+    .fees-overview {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .fees-overview div {
+      background: #ffffff;
+      padding: 16px;
       border-radius: 8px;
-      margin: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
-      font-style: italic;
-      color: #00695c;
-      border-left: 4px solid #ffd700;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .fees-overview div#billed {
+      background: #3498db;
+      color: #ffffff;
+    }
+    .fees-overview div#billed i {
+      color: #ffffff;
+    }
+    .fees-overview div#paid {
+      background: #1abc9c;
+      color: #ffffff;
+    }
+    .fees-overview div#paid i {
+      color: #ffffff;
+    }
+    .fees-overview div#balance {
+      background: #e74c3c;
+      color: #ffffff;
+    }
+    .fees-overview div#balance i {
+      color: #ffffff;
+    }
+    .fees-overview .highlight {
+      color: #e74c3c;
     }
     .section {
       display: none;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      margin: 10px;
-      border-left: 4px solid #ff7043;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
       animation: fadeIn 0.5s ease-in;
-      max-height: 70vh;
-      overflow-y: auto;
     }
     .section.active {
       display: block;
     }
     h1 {
-      font-size: 26px;
-      color: #00695c;
-      margin-bottom: 12px;
+      font-size: 28px;
+      color: #3498db;
+      margin-bottom: 16px;
       font-weight: 700;
-      border-bottom: 2px solid #ffd700;
-      padding-bottom: 5px;
+      border-bottom: 3px solid #1abc9c;
+      padding-bottom: 10px;
     }
     h2 {
-      color: #ff7043;
-      font-size: 18px;
-      margin-bottom: 8px;
+      color: #e74c3c;
+      font-size: 20px;
+      margin-bottom: 12px;
       font-weight: 600;
     }
     .card {
-      background: #f5f5f5;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #e0e0e0;
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
-      font-size: 14px;
+      margin-top: 12px;
+      font-size: 15px;
+      overflow-x: auto;
+      display: block;
     }
     th, td {
-      border: 2px solid #b0bec5;
-      padding: 6px;
+      border: 1px solid #dfe6e9;
+      padding: 12px;
       text-align: left;
     }
     th {
-      background: #ffca28;
-      color: #fff;
-      font-weight: 600;
+      background: #3498db;
+      color: #ffffff;
+      font-weight: 700;
     }
     tr:nth-child(even) {
-      background: #eceff1;
-    }
-    .fees-highlight {
-      font-weight: 700;
-      color: #00695c;
-      background: #e0f2f1;
-      padding: 5px 10px;
-      border-radius: 5px;
-      display: inline-block;
+      background: #ecf0f1;
     }
     .announcement-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
     }
     .announcement-card {
-      background: #fff3e0;
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 4px solid #ff7043;
-      position: relative;
+      background: #fef9e7;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid #e74c3c;
       transition: transform 0.3s ease;
     }
     .announcement-card.unread {
-      background: #ffe0b2;
-      font-weight: 500;
-    }
-    .announcement-card.read {
-      background: #fff3e0;
+      background: #fce4d6;
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
     }
     .announcement-card:hover {
-      transform: translateX(8px);
+      transform: translateY(-5px);
     }
     .announcement-card h4 {
-      margin: 0 0 10px;
-      color: #00695c;
+      margin: 0 0 12px;
+      color: #2c3e50;
+      font-size: 18px;
     }
     .announcement-card p {
-      margin: 5px 0;
+      margin: 8px 0;
+      font-size: 15px;
     }
     .announcement-card .mark-read {
-      background: #ff7043;
-      color: #fff;
+      background: #e74c3c;
+      color: #ffffff;
       border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background 0.3s ease;
-      margin-top: auto;
-    }
-    .announcement-card .mark-read:hover {
-      background: #f4511e;
-    }
-    button {
-      padding: 10px 18px;
-      background: linear-gradient(to right, #00695c, #ff7043);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      font-weight: 500;
-      transition: transform 0.3s ease;
+      font-weight: 600;
+      transition: background 0.3s ease;
+      margin-top: 12px;
+    }
+    .announcement-card .mark-read:hover {
+      background: #c0392b;
+    }
+    button {
+      padding: 12px 24px;
+      background: #1abc9c;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.3s ease, background 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     button:hover {
+      background: #16a085;
       transform: scale(1.05);
     }
     .error-message {
-      color: #d32f2f;
-      font-size: 14px;
-      margin: 10px;
-      padding: 8px;
-      background: #ffebee;
-      border-radius: 4px;
+      color: #e74c3c;
+      font-size: 15px;
+      margin: 16px;
+      padding: 12px;
+      background: #fee4e2;
+      border-radius: 6px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in;
     }
     .payment-center {
       text-align: center;
-      padding: 15px;
-      background: #fffde7;
-      border-radius: 10px;
-      border: 2px dashed #ffca28;
+      padding: 24px;
+      background: #f0f4f8;
+      border-radius: 12px;
+      border: 2px solid #1abc9c;
+      margin-bottom: 16px;
     }
     .payment-center h1 {
-      font-size: 28px;
-      color: #ff7043;
-      margin-bottom: 12px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      font-size: 24px;
+      color: #e74c3c;
+      margin-bottom: 16px;
     }
     .payment-assurance {
       list-style: none;
       padding: 0;
-      margin: 12px 0;
+      margin: 16px 0;
     }
     .payment-assurance li {
-      margin: 8px 0;
-      font-size: 15px;
-      color: #00695c;
+      margin: 12px 0;
+      font-size: 16px;
+      color: #2c3e50;
       display: flex;
       align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .payment-assurance li i {
-      color: #4caf50;
-      margin-right: 8px;
-      font-size: 16px;
+      color: #27ae60;
+      font-size: 18px;
     }
     .online-dot {
-      width: 12px;
-      height: 12px;
-      background: #00ff00;
+      width: 10px;
+      height: 10px;
+      background: #27ae60;
       border-radius: 50%;
       display: inline-block;
-      margin-left: 5px;
-      box-shadow: 0 0 10px #00ff00;
+      margin-left: 8px;
+      box-shadow: 0 0 8px #27ae60;
       animation: pulse 1.5s infinite;
     }
     .profile-info p {
-      margin: 6px 0;
+      margin: 12px 0;
+      font-size: 16px;
       display: flex;
       align-items: center;
-      font-size: 15px;
+      gap: 8px;
     }
     .profile-info i {
-      margin-right: 8px;
-      color: #ff7043;
-      font-size: 16px;
+      color: #e74c3c;
+      font-size: 18px;
     }
     .progress-bar {
       width: 100%;
-      background-color: #f0f0f0;
-      border-radius: 5px;
-      margin: 10px 0;
+      background: #dfe6e9;
+      border-radius: 8px;
+      margin: 16px 0;
+      overflow: hidden;
     }
     .progress {
-      height: 20px;
-      border-radius: 5px;
-      background: linear-gradient(to right, #00695c, #ff7043);
+      height: 24px;
+      border-radius: 8px;
+      background: #3498db;
       text-align: center;
-      color: #fff;
-      line-height: 20px;
+      color: #ffffff;
+      line-height: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: width 0.5s ease;
     }
     .term-select {
-      margin: 10px 0;
-      padding: 8px;
+      margin: 16px 0;
+      padding: 12px;
       font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #b0bec5;
+      border-radius: 8px;
+      border: 1px solid #dfe6e9;
+      width: 100%;
+      max-width: 300px;
+      transition: border-color 0.3s ease;
+    }
+    .term-select:focus {
+      border-color: #e74c3c;
+      outline: none;
     }
     .announcements-nav {
-      margin-bottom: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .announcements-nav button {
-      margin-right: 10px;
-      background: #00695c;
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s ease;
+      background: #3498db;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 8px;
+      color: #ffffff;
     }
     .announcements-nav button.active {
-      background: #ff7043;
+      background: #e74c3c;
     }
     .announcements-nav button:hover {
-      background: #004d40;
+      background: #2980b9;
     }
-    footer {
-      background: #00695c;
-      color: #fff;
-      text-align: center;
-      padding: 10px 0;
+    .bottom-nav {
+      display: none;
       position: fixed;
       bottom: 0;
       width: 100%;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+      background: #3498db;
+      padding: 12px 0;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
       z-index: 1000;
     }
-    footer p {
-      margin: 5px 0;
+    .bottom-nav.active {
+      display: block;
+    }
+    .bottom-nav .nav-items {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .bottom-nav a, .bottom-nav button {
+      color: #ffffff;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      padding: 8px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .bottom-nav a:hover, .bottom-nav button:hover {
+      color: #ecf0f1;
+    }
+    .bottom-nav i {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    footer {
+      background: #2c3e50;
+      color: #ffffff;
+      text-align: center;
+      padding: 12px 0;
       font-size: 14px;
     }
+    footer p {
+      margin: 4px 0;
+    }
     footer a {
-      color: #ffd700;
+      color: #1abc9c;
       text-decoration: none;
     }
     footer a:hover {
       text-decoration: underline;
     }
+    .helb-card {
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border-left: 4px solid #3498db;
+      text-align: center;
+    }
+    .coming-soon {
+      background: #f0f4f8;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 2px dashed #1abc9c;
+      text-align: center;
+      color: #e74c3c;
+      font-style: italic;
+      font-size: 18px;
+    }
+    .loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #e74c3c;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      z-index: 2000;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
     @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 5px #00ff00; }
-      50% { transform: scale(1.2); box-shadow: 0 0 15px #00ff00; }
-      100% { transform: scale(1); box-shadow: 0 0 5px #00ff00; }
+      0% { transform: scale(1); box-shadow: 0 0 5px #27ae60; }
+      50% { transform: scale(1.2); box-shadow: 0 0 12px #27ae60; }
+      100% { transform: scale(1); box-shadow: 0 0 5px #27ae60; }
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     @media (max-width: 768px) {
       .main-content {
-        padding: 90px 15px 60px;
-        margin-left: 0;
+        padding: 16px;
       }
       .sidebar {
         display: none;
       }
+      .bottom-nav {
+        display: block;
+      }
       .section {
-        max-height: 50vh;
+        margin: 12px;
+        padding: 16px;
       }
-      footer {
-        padding: 5px 0;
+      .slider img {
+        height: 200px;
       }
-      .announcement-grid {
-        grid-template-columns: 1fr;
+      .header h1 {
+        font-size: 20px;
+      }
+      .menu-content {
+        right: 12px;
+        width: 180px;
+      }
+      .menu-content a, .menu-content button {
+        font-size: 15px;
+        padding: 10px 16px;
       }
     }
     @media (min-width: 769px) {
-      .container {
-        flex-direction: row;
-      }
-      .top-menu {
-        display: block;
-      }
       .sidebar {
+        display: block;
+        width: 280px;
+        height: calc(100vh - 60px);
+        position: fixed;
+        top: 60px;
+        left: 0;
+        background: #2980b9;
+        padding: 24px;
+        z-index: 900;
+      }
+      .sidebar .profile {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .sidebar .profile img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 3px solid #ffffff;
+      }
+      .sidebar .profile img:hover {
+        transform: scale(1.1);
+      }
+      .sidebar .profile p {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 8px 0;
         display: block;
       }
       .main-content {
-        margin-left: 250px;
+        margin-left: 280px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">Borabu Teacher's Training College</div>
-    <div class="top-menu">
+    <div class="header">
+      <h1>Borabu TTC Student Portal</h1>
       <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
       <div class="menu-content" id="menuContent">
         <a href="#" onclick="showSection('profile', hideMenu())">Profile</a>
@@ -424,40 +577,52 @@
         <a href="#" onclick="showSection('fees', hideMenu())">Fees</a>
         <a href="#" onclick="showSection('payFees', hideMenu())">Pay Fees</a>
         <a href="#" onclick="showSection('announcements', hideMenu())">Announcements</a>
+        <a href="#" onclick="showSection('timetables', hideMenu())">Timetables</a>
         <button onclick="logout()">Logout</button>
       </div>
     </div>
     <div class="sidebar">
       <div class="profile">
-        <img src="https://img.icons8.com/color/80/000000/student-male.png" alt="Student Icon">
-        <p id="studentName"></p><span class="online-dot"></span>
+        <img src="https://img.icons8.com/color/90/000000/student-female.png" alt="Student Icon">
+        <p id="studentName"></p>
+        <p id="studentYear"></p>
+        <p>Diploma in Primary Teacher Education</p>
       </div>
     </div>
     <div class="main-content">
-      <div class="quote">
-        <h2>Daily Quote</h2>
-        <p id="dailyQuote">"Education is the key to unlocking the world, a passport to freedom." - Finley Onchiri</p>
+      <div class="slider">
+        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1470&auto=format&fit=crop" alt="Campus Life" class="active">
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1470&auto=format&fit=crop" alt="Classroom">
+        <img src="https://images.unsplash.com/photo-1546410531-6c8bdecb5661?q=80&w=1470&auto=format&fit=crop" alt="Library">
       </div>
       <div id="profile" class="section active">
         <h1>Profile</h1>
-        <p><strong>Explanation:</strong> View your personal details, including admission number, name, year, stream, gender, sponsor, and parent contact information.</p>
-        <div class="card profile-info">
+        <div class="profile-info">
           <p><i class="fas fa-id-card"></i> Admission Number: <strong id="regNo"></strong></p>
-          <p><i class="fas fa-user"></i> Name: <strong id="name">N/A</strong></p>
-          <p><i class="fas fa-calendar"></i> Year: <strong id="year">N/A</strong></p>
-          <p><i class="fas fa-stream"></i> Stream: <strong id="stream">N/A</strong></p>
-          <p><i class="fas fa-venus-mars"></i> Gender: <strong id="gender">N/A</strong></p>
-          <p><i class="fas fa-hand-holding-usd"></i> Sponsor: <strong id="sponsor">N/A</strong></p>
-          <p><i class="fas fa-users"></i> Parent Name: <strong id="parentName">N/A</strong></p>
-          <p><i class="fas fa-phone"></i> Parent Phone: <strong id="parentPhone">N/A</strong></p>
+          <p><i class="fas fa-user"></i> Name: <strong id="name"></strong></p>
+          <p><i class="fas fa-calendar"></i> Year: <strong id="year">Year in Progress</strong></p>
+          <p><i class="fas fa-stream"></i> Stream: <strong id="stream">Stream Details</strong></p>
+          <p><i class="fas fa-venus-mars"></i> Gender: <strong id="gender">To Be Updated</strong></p>
+          <p><i class="fas fa-hand-holding-usd"></i> Sponsor: <strong id="sponsor">Sponsor Info</strong></p>
+          <p><i class="fas fa-users"></i> Parent Name: <strong id="parentName">Parent Details</strong></p>
+          <p><i class="fas fa-phone"></i> Parent Phone: <strong id="parentPhone">Contact Pending</strong></p>
           <div class="progress-bar">
             <div class="progress" id="progressBar" style="width: 0%;">0% Graduation Tracker</div>
           </div>
         </div>
+        <div class="fees-overview">
+          <div id="billed"><i class="fas fa-receipt"></i> Total Billed: <span id="feesTotal">Loading...</span></div>
+          <div id="paid"><i class="fas fa-check-circle"></i> Total Paid: <span id="feesPaid">Awaiting Update</span></div>
+          <div id="balance"><i class="fas fa-balance-scale"></i> Balance: <span id="feesBalance">Calculating...</span></div>
+        </div>
+        <div class="helb-card">
+          <h2>Apply for HELB Now!</h2>
+          <p><i class="fas fa-graduation-cap"></i> Secure financial support for your education through the Higher Education Loans Board (HELB).</p>
+          <button onclick="window.open('https://www.helb.co.ke/', '_blank')"><i class="fas fa-external-link-alt"></i> Apply</button>
+        </div>
       </div>
       <div id="marks" class="section">
         <h1>Academics</h1>
-        <p><strong>Explanation:</strong> Check your academic performance with CAT and exam scores across different terms and subjects, along with corresponding grades.</p>
         <select class="term-select" id="termSelect" onchange="updateMarks()">
           <option value="term1">Term 1</option>
           <option value="term2">Term 2</option>
@@ -477,17 +642,15 @@
             <tbody id="marksBody"></tbody>
           </table>
         </div>
-        <p><strong>Note:</strong> For any complaints, please see the teacher in charge of academics.</p>
-        <button onclick="downloadPDF()">Download PDF</button>
+        <button onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
       </div>
       <div id="fees" class="section">
         <h1>Fees</h1>
-        <p><strong>Explanation:</strong> Monitor your fee status, including total amount, payments made, outstanding balance, and a detailed transaction history.</p>
         <div class="card">
-          <p>Total: <span class="fees-highlight" id="feesTotal">N/A</span></p>
-          <p>Paid: <span class="fees-highlight" id="feesPaid">N/A</span></p>
-          <p>Balance: <span class="fees-highlight" id="feesBalance">N/A</span></p>
-          <p>Statement: <span id="feesStatement">N/A</span></p>
+          <p>Total: <span id="feesTotalFees">Loading...</span></p>
+          <p>Paid: <span id="feesPaidFees">Awaiting Update</span></p>
+          <p>Balance: <span id="feesBalanceFees">Calculating...</span></p>
+          <p>Statement: <span id="feesStatement">Statement in Progress</span></p>
           <table id="transactionsTable">
             <thead>
               <tr>
@@ -500,12 +663,16 @@
             </thead>
             <tbody id="transactionsBody"></tbody>
           </table>
+          <button onclick="downloadFeePDF()"><i class="fas fa-file-pdf"></i> Download Fee PDF</button>
         </div>
-        <button onclick="downloadFeePDF()">Download Fee PDF</button>
+        <div class="fees-overview">
+          <div id="billed"><i class="fas fa-receipt"></i> Total Billed: <span id="feesTotalFeesDisplay">Loading...</span></div>
+          <div id="paid"><i class="fas fa-check-circle"></i> Total Paid: <span id="feesPaidFeesDisplay">Awaiting Update</span></div>
+          <div id="balance"><i class="fas fa-balance-scale"></i> Balance: <span id="feesBalanceFeesDisplay">Calculating...</span></div>
+        </div>
       </div>
       <div id="payFees" class="section">
         <h1>Pay Fees</h1>
-        <p><strong>Explanation:</strong> Access a secure payment portal to settle your fees. Our team ensures accuracy and support for any issues.</p>
         <div class="payment-center">
           <h1>Welcome to Borabu TTC Fee Payment Centre</h1>
           <p>Make your payments with ease and confidence!</p>
@@ -516,28 +683,37 @@
             <li><i class="fas fa-lock"></i> Secure Transactions</li>
             <li><i class="fas fa-headset"></i> 24/7 Support</li>
           </ul>
-          <button onclick="window.open('https://payment.intasend.com/pay/b90e1c19-33da-4b7d-a654-c4fb72eb9ea7/', '_blank')">Pay Now</button>
+          <button onclick="window.open('https://payment.intasend.com/pay/b90e1c19-33da-4b7d-a654-c4fb72eb9ea7/', '_blank')"><i class="fas fa-credit-card"></i> Pay Now</button>
           <p>After payment, please contact the Accounts Office to confirm receipt. For issues, visit the office for assistance.</p>
+        </div>
+        <div class="fees-overview">
+          <div id="billed"><i class="fas fa-receipt"></i> Total Billed: <span id="feesTotalPayFees">Loading...</span></div>
+          <div id="paid"><i class="fas fa-check-circle"></i> Total Paid: <span id="feesPaidPayFees">Awaiting Update</span></div>
+          <div id="balance"><i class="fas fa-balance-scale"></i> Balance: <span id="feesBalancePayFees">Calculating...</span></div>
         </div>
       </div>
       <div id="announcements" class="section">
         <h1>Announcements</h1>
-        <p><strong>Explanation:</strong> Stay updated with the latest news, notices, and messages from teachers or administrators.</p>
         <div class="announcements-nav">
           <button id="generalBtn" class="active" onclick="showAnnouncements('general')">General</button>
           <button id="individualBtn" onclick="showAnnouncements('individual')">Individual</button>
         </div>
-        <div class="card">
-          <div class="announcement-grid" id="announcementsContainer"></div>
+        <div class="announcement-grid" id="announcementsContainer"></div>
+      </div>
+      <div id="timetables" class="section">
+        <h1>Timetables</h1>
+        <div class="coming-soon">
+          <p><i class="fas fa-clock"></i> Coming Soon! Get ready for schedule updates!</p>
         </div>
       </div>
     </div>
+    <div id="errorMessage" class="error-message"></div>
+    <div class="loader" id="loader"></div>
+    <footer>
+      <p>Contact: <a href="mailto:info@borabuttc.ac.ke">info@borabuttc.ac.ke</a> | Phone: +254 712 345 678</p>
+      <p>© 2025 Borabu Teachers Training College. All rights reserved.</p>
+    </footer>
   </div>
-  <div id="errorMessage" class="error-message"></div>
-  <footer>
-    <p>Contact: <a href="mailto:info@borabuttc.ac.ke">info@borabuttc.ac.ke</a> | Phone: +254 712 345 678</p>
-    <p>© 2025 Borabu Teachers Training College. All rights reserved.</p>
-  </footer>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCi9NWfDwbWSByd_R7ueNkLcQsFlBJ5_VA",
@@ -553,15 +729,23 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    let currentSection = 'profile';
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slider img');
+
     function showSection(section, callback) {
       document.querySelectorAll(".section").forEach(div => div.classList.remove("active"));
       document.getElementById(section).classList.add("active");
+      currentSection = section;
       if (callback) callback();
+      updateBottomNav();
     }
 
-    function showError(message) {
+    function showError(message, isSuccess = false) {
       const errorDiv = document.getElementById("errorMessage");
       errorDiv.textContent = message;
+      errorDiv.style.background = isSuccess ? '#d1fae5' : '#fee4e2';
+      errorDiv.style.color = isSuccess ? '#27ae60' : '#e74c3c';
       errorDiv.style.display = "block";
       setTimeout(() => { errorDiv.style.display = "none"; }, 5000);
     }
@@ -589,16 +773,18 @@
     }
 
     function logout() {
-      sessionStorage.clear();
-      console.log("Logged out, redirecting to index.html");
+      localStorage.clear();
       window.location.href = "index.html";
     }
 
     function updateMarks() {
+      const loader = document.getElementById("loader");
+      loader.style.display = "block";
       const term = document.getElementById("termSelect").value;
-      const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
+      const regNo = localStorage.getItem("regNo").replace(/\//g, "_");
       const studentRef = db.ref("users/students/" + regNo);
       studentRef.once("value", (snapshot) => {
+        loader.style.display = "none";
         if (snapshot.exists()) {
           const data = snapshot.val();
           const marksBody = document.getElementById("marksBody");
@@ -608,27 +794,42 @@
           if (termData) {
             hasMarks = true;
             for (const [subject, catScore] of Object.entries(termData.cat || {})) {
-              const examScore = termData.exam?.[subject] || (termData[subject] || "-");
-              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
+              const examScore = termData.exam?.[subject] || (termData[subject] || "Pending");
+              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "TBA";
               marksBody.innerHTML += `<tr>
                 <td>${term.replace("term", "Term ")}</td>
                 <td>${subject}</td>
-                <td>${catScore !== undefined ? catScore : "-"}</td>
-                <td>${examScore !== undefined ? examScore : "-"}</td>
+                <td>${catScore !== undefined ? catScore : "Awaiting"}</td>
+                <td>${examScore !== undefined ? examScore : "Pending"}</td>
                 <td>${grade}</td>
               </tr>`;
             }
           }
           if (!hasMarks) {
-            marksBody.innerHTML = "<tr><td colspan='5'>No marks available for this term</td></tr>";
+            marksBody.innerHTML = "<tr><td colspan='5'>No marks recorded yet</td></tr>";
           }
+        } else {
+          showError("Student profile not found.");
         }
       }).catch((error) => {
+        loader.style.display = "none";
         showError("Failed to update marks: " + error.message);
       });
     }
 
-    function downloadPDF() {
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image from ${src}`));
+        img.src = src;
+        setTimeout(() => reject(new Error(`Timeout loading image from ${src}`)), 5000); // 5-second timeout
+      });
+    }
+
+    async function downloadPDF() {
+      const loader = document.getElementById("loader");
+      loader.style.display = "block";
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const name = document.getElementById("name").textContent;
@@ -638,18 +839,30 @@
       const today = new Date().toLocaleDateString();
       const marksBody = document.getElementById("marksBody");
 
-      doc.setFontSize(16);
-      doc.text("Borabu Teacher's Training College", 70, 20);
-      doc.setFontSize(10);
-      doc.text("P.O. Box 443, Nyamira", 85, 26);
-      doc.text("Date: " + today, 150, 26);
+      try {
+        const logoImg = await loadImage('https://uploads.onecompiler.io/42jd8ggps/43pkfwpts/bttc.jpg');
+        doc.addImage(logoImg, 'JPEG', 10, 10, 30, 30);
+      } catch (error) {
+        showError(`Error loading logo: ${error.message}. Proceeding without logo.`);
+      }
+
+      doc.setFontSize(18);
+      doc.setFillColor(52, 152, 219);
+      doc.rect(40, 0, 170, 40, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.text("Borabu Teacher's Training College", 50, 20);
+      doc.text("Academic Report", 50, 30);
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text("P.O. Box 443, Nyamira", 50, 45);
+      doc.text("Date: " + today, 50, 53);
 
       doc.setFontSize(12);
-      doc.text("Name: " + name, 20, 40);
-      doc.text("Reg No: " + regNo, 20, 48);
-      doc.text("Stream: " + stream, 20, 56);
-      doc.text("Year: " + year, 20, 64);
-      doc.text("Course: Diploma in Primary Education", 20, 72);
+      doc.text(`Name: ${name}`, 50, 65);
+      doc.text(`Registration Number: ${regNo}`, 50, 73);
+      doc.text(`Stream: ${stream}`, 50, 81);
+      doc.text(`Year: ${year}`, 50, 89);
+      doc.text("Course: Diploma in Primary Education", 50, 97);
 
       const rows = [];
       if (marksBody.querySelectorAll("tr").length > 0) {
@@ -658,49 +871,67 @@
           rows.push(cols);
         });
         doc.autoTable({
-          startY: 82,
+          startY: 105,
           head: [["Term", "Subject", "CAT Score", "Exam Score", "Grade"]],
           body: rows,
           theme: 'grid',
-          styles: { cellPadding: 2, fontSize: 10 },
-          headStyles: { fillColor: [255, 202, 40], textColor: [255, 255, 255] },
+          styles: { cellPadding: 3, fontSize: 10, lineColor: [0, 0, 0], lineWidth: 0.1 },
+          headStyles: { fillColor: [52, 152, 219], textColor: [255, 255, 255], fontStyle: 'bold' },
+          bodyStyles: { alternateRowStyles: { fillColor: [236, 240, 241] } },
         });
       } else {
-        doc.text("No marks available for this term", 20, 82);
+        doc.text("No marks recorded yet", 50, 105);
       }
 
       doc.setFontSize(10);
-      doc.text("Lecturer: Mr. Mojo", 20, 280);
-      doc.text("Assistant: Mrs. Mojo", 120, 280);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Registrar: Mr. Mojo", 50, 270);
+      doc.text("Signature: ___________________", 120, 270);
+      doc.text("Date: " + today, 120, 278);
 
-      doc.save(`${name.replace(/ /g, "_")}_Report.pdf`);
+      doc.save(`${name.replace(/ /g, "_")}_Academic_Report.pdf`);
+      loader.style.display = "none";
     }
 
-    function downloadFeePDF() {
+    async function downloadFeePDF() {
+      const loader = document.getElementById("loader");
+      loader.style.display = "block";
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const name = document.getElementById("name").textContent;
       const regNo = document.getElementById("regNo").textContent;
       const today = new Date().toLocaleDateString();
-      const total = document.getElementById("feesTotal").textContent.replace(/,/g, "");
-      const paid = document.getElementById("feesPaid").textContent.replace(/,/g, "");
-      const balance = document.getElementById("feesBalance").textContent.replace(/,/g, "");
+      const total = document.getElementById("feesTotalFees").textContent.replace(/,/g, "");
+      const paid = document.getElementById("feesPaidFees").textContent.replace(/,/g, "");
+      const balance = document.getElementById("feesBalanceFees").textContent.replace(/,/g, "");
       const statement = document.getElementById("feesStatement").textContent;
       const transactionsBody = document.getElementById("transactionsBody");
 
-      doc.setFontSize(16);
-      doc.text("Borabu Teacher's Training College", 70, 20);
-      doc.setFontSize(10);
-      doc.text("P.O. Box 443, Nyamira", 85, 26);
-      doc.text("Date: " + today, 150, 26);
+      try {
+        const logoImg = await loadImage('https://uploads.onecompiler.io/42jd8ggps/43pkfwpts/bttc.jpg');
+        doc.addImage(logoImg, 'JPEG', 10, 10, 30, 30);
+      } catch (error) {
+        showError(`Error loading logo: ${error.message}. Proceeding without logo.`);
+      }
+
+      doc.setFontSize(18);
+      doc.setFillColor(52, 152, 219);
+      doc.rect(40, 0, 170, 40, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.text("Borabu Teacher's Training College", 50, 20);
+      doc.text("Fee Statement", 50, 30);
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text("P.O. Box 443, Nyamira", 50, 45);
+      doc.text("Date: " + today, 50, 53);
 
       doc.setFontSize(12);
-      doc.text("Name: " + name, 20, 40);
-      doc.text("Reg No: " + regNo, 20, 48);
-      doc.text("Total Fees: " + total, 20, 56);
-      doc.text("Paid: " + paid, 20, 64);
-      doc.text("Balance: " + balance, 20, 72);
-      doc.text("Statement: " + statement, 20, 80);
+      doc.text(`Name: ${name}`, 50, 65);
+      doc.text(`Registration Number: ${regNo}`, 50, 73);
+      doc.text(`Total Fees: ${total}`, 50, 81);
+      doc.text(`Paid: ${paid}`, 50, 89);
+      doc.text(`Balance: ${balance}`, 50, 97);
+      doc.text(`Statement: ${statement}`, 50, 105);
 
       const rows = [];
       if (transactionsBody.querySelectorAll("tr").length > 0) {
@@ -709,55 +940,77 @@
           rows.push(cols);
         });
         doc.autoTable({
-          startY: 90,
+          startY: 115,
           head: [["Date", "Amount", "Method", "Payer", "Transaction Code"]],
           body: rows,
           theme: 'grid',
-          styles: { cellPadding: 2, fontSize: 10 },
-          headStyles: { fillColor: [255, 202, 40], textColor: [255, 255, 255] },
+          styles: { cellPadding: 3, fontSize: 10, lineColor: [0, 0, 0], lineWidth: 0.1 },
+          headStyles: { fillColor: [52, 152, 219], textColor: [255, 255, 255], fontStyle: 'bold' },
+          bodyStyles: { alternateRowStyles: { fillColor: [236, 240, 241] } },
         });
       } else {
-        doc.text("No transactions available", 20, 90);
+        doc.text("No transactions recorded yet", 50, 115);
       }
 
       doc.setFontSize(10);
-      doc.text("Accounts Office", 20, 280);
-      doc.text("Contact: +254 712 345 678", 120, 280);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Accounts Office", 50, 270);
+      doc.text("Signature: ___________________", 120, 270);
+      doc.text("Contact: +254 712 345 678", 120, 278);
 
-      doc.save(`${name.replace(/ /g, "_")}_Fee_Report.pdf`);
+      doc.save(`${name.replace(/ /g, "_")}_Fee_Statement.pdf`);
+      loader.style.display = "none";
+    }
+
+    function updateBottomNav() {
+      const bottomNav = document.querySelector('.bottom-nav');
+      if (window.innerWidth <= 768) {
+        bottomNav.classList.add('active');
+      } else {
+        bottomNav.classList.remove('active');
+      }
+    }
+
+    function slideShow() {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
     }
 
     window.onload = function() {
-      const userType = sessionStorage.getItem("userType");
-      const regNo = sessionStorage.getItem("regNo");
-      const studentName = sessionStorage.getItem("studentName");
-      console.log("Student.html loaded, sessionStorage:", userType, regNo, studentName);
+      const userType = localStorage.getItem("userType");
+      const regNo = localStorage.getItem("regNo");
+      const studentName = localStorage.getItem("studentName");
 
       if (userType !== "student" || !regNo) {
-        console.log("Redirecting to index.html: Invalid session");
-        window.location.href = "index.html";
+        localStorage.clear();
+        setTimeout(() => window.location.href = "index.html", 100);
         return;
       }
 
-      document.getElementById("studentName").textContent = studentName || "Student";
+      document.getElementById("studentName").textContent = studentName || "Student Profile";
       document.getElementById("regNo").textContent = regNo.replace(/_/g, "/");
 
+      const loader = document.getElementById("loader");
+      loader.style.display = "block";
       const studentRef = db.ref("users/students/" + regNo.replace(/\//g, "_"));
       studentRef.once("value", (snapshot) => {
+        loader.style.display = "none";
         if (snapshot.exists()) {
           const data = snapshot.val();
           const profile = data.profile || {};
-          document.getElementById("name").textContent = profile.name || data.name || "N/A";
-          const year = profile.year || data.form?.replace("form", "Year ") || "N/A";
+          document.getElementById("name").textContent = profile.name || data.name || "Student Name";
+          const year = profile.year || data.form?.replace("form", "Year ") || "Year in Progress";
           document.getElementById("year").textContent = year;
+          document.getElementById("studentYear").textContent = year;
           const progress = year === "Year 1" ? 25 : year === "Year 2" ? 50 : year === "Year 3" ? 75 : year === "Year 4" ? 100 : 0;
           document.getElementById("progressBar").style.width = progress + "%";
           document.getElementById("progressBar").textContent = progress + "% Graduation Tracker";
-          document.getElementById("stream").textContent = profile.stream || data.stream || "N/A";
-          document.getElementById("gender").textContent = profile.gender || data.gender || "N/A";
-          document.getElementById("sponsor").textContent = profile.sponsor || data.sponsor || "N/A";
-          document.getElementById("parentName").textContent = profile.parentName || data.parentName || "N/A";
-          document.getElementById("parentPhone").textContent = profile.parentPhone || data.parentPhone || "N/A";
+          document.getElementById("stream").textContent = profile.stream || data.stream || "Stream Details";
+          document.getElementById("gender").textContent = profile.gender || data.gender || "To Be Updated";
+          document.getElementById("sponsor").textContent = data.fees?.sponsor || "Sponsor Info";
+          document.getElementById("parentName").textContent = profile.parentName || data.parentName || "Parent Details";
+          document.getElementById("parentPhone").textContent = profile.parentPhone || data.parentPhone || "Contact Pending";
 
           const marksBody = document.getElementById("marksBody");
           marksBody.innerHTML = "";
@@ -767,19 +1020,19 @@
           if (termData) {
             hasMarks = true;
             for (const [subject, catScore] of Object.entries(termData.cat || {})) {
-              const examScore = termData.exam?.[subject] || (termData[subject] || "-");
-              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "-";
+              const examScore = termData.exam?.[subject] || (termData[subject] || "Pending");
+              const grade = termData.grades?.[subject] || termData.grades?.[subject.toLowerCase()] || "TBA";
               marksBody.innerHTML += `<tr>
                 <td>${term.replace("term", "Term ")}</td>
                 <td>${subject}</td>
-                <td>${catScore !== undefined ? catScore : "-"}</td>
-                <td>${examScore !== undefined ? examScore : "-"}</td>
+                <td>${catScore !== undefined ? catScore : "Awaiting"}</td>
+                <td>${examScore !== undefined ? examScore : "Pending"}</td>
                 <td>${grade}</td>
               </tr>`;
             }
           }
           if (!hasMarks) {
-            marksBody.innerHTML = "<tr><td colspan='5'>No marks available for this term</td></tr>";
+            marksBody.innerHTML = "<tr><td colspan='5'>No marks recorded yet</td></tr>";
           }
 
           const feesData = data.fees || {};
@@ -795,10 +1048,20 @@
           const balanceFromDb = feesData.balance !== undefined ? feesData.balance : null;
           const calculatedBalance = Math.max(0, total - totalPaid);
           const balance = balanceFromDb !== null ? balanceFromDb : calculatedBalance;
-          const statement = feesData.statement || "N/A";
-          document.getElementById("feesTotal").textContent = total.toLocaleString() || "N/A";
-          document.getElementById("feesPaid").textContent = totalPaid.toLocaleString() || "N/A";
-          document.getElementById("feesBalance").textContent = balance.toLocaleString() || "N/A";
+          const statement = feesData.statement || "Statement in Progress";
+
+          document.getElementById("feesTotal").textContent = total.toLocaleString();
+          document.getElementById("feesPaid").textContent = totalPaid.toLocaleString();
+          document.getElementById("feesBalance").textContent = balance.toLocaleString();
+          document.getElementById("feesTotalFees").textContent = total.toLocaleString();
+          document.getElementById("feesPaidFees").textContent = totalPaid.toLocaleString();
+          document.getElementById("feesBalanceFees").textContent = balance.toLocaleString();
+          document.getElementById("feesTotalFeesDisplay").textContent = total.toLocaleString();
+          document.getElementById("feesPaidFeesDisplay").textContent = totalPaid.toLocaleString();
+          document.getElementById("feesBalanceFeesDisplay").textContent = balance.toLocaleString();
+          document.getElementById("feesTotalPayFees").textContent = total.toLocaleString();
+          document.getElementById("feesPaidPayFees").textContent = totalPaid.toLocaleString();
+          document.getElementById("feesBalancePayFees").textContent = balance.toLocaleString();
           document.getElementById("feesStatement").textContent = statement;
 
           const transactionsBody = document.getElementById("transactionsBody");
@@ -806,30 +1069,34 @@
           if (Array.isArray(transactions)) {
             transactions.forEach(tx => {
               transactionsBody.innerHTML += `<tr>
-                <td>${tx.date || "-"}</td>
+                <td>${tx.date || "Date TBD"}</td>
                 <td>${tx.amount || "0"}</td>
-                <td>${tx.method || "-"}</td>
-                <td>${tx.payer || "-"}</td>
-                <td>${tx.transactionCode || tx.mpesaCode || "-"}</td>
+                <td>${tx.method || "Method TBD"}</td>
+                <td>${tx.payer || "Payer TBD"}</td>
+                <td>${tx.transactionCode || tx.mpesaCode || "Code TBD"}</td>
               </tr>`;
             });
           } else if (typeof transactions === "object") {
             Object.values(transactions).forEach(tx => {
               transactionsBody.innerHTML += `<tr>
-                <td>${tx.date || "-"}</td>
+                <td>${tx.date || "Date TBD"}</td>
                 <td>${tx.amount || "0"}</td>
-                <td>${tx.method || "-"}</td>
-                <td>${tx.payer || "-"}</td>
-                <td>${tx.transactionCode || tx.mpesaCode || "-"}</td>
+                <td>${tx.method || "Method TBD"}</td>
+                <td>${tx.payer || "Payer TBD"}</td>
+                <td>${tx.transactionCode || tx.mpesaCode || "Code TBD"}</td>
               </tr>`;
             });
           }
         } else {
-          showError("Student data not found.");
+          showError("Student profile not found.");
+          localStorage.clear();
+          setTimeout(() => window.location.href = "index.html", 100);
         }
       }).catch((error) => {
+        loader.style.display = "none";
         showError("Failed to load data: " + error.message);
-        console.log("Error loading student data:", error);
+        localStorage.clear();
+        setTimeout(() => window.location.href = "index.html", 100);
       });
 
       const normalizedRegNo = regNo.replace(/\//g, "_");
@@ -837,32 +1104,45 @@
       const announcementsContainer = document.getElementById("announcementsContainer");
 
       function updateAnnouncements(type) {
-        announcementsContainer.innerHTML = "<p><i class='fas fa-spinner fa-spin'></i> Loading announcements...</p>";
+        announcementsContainer.innerHTML = "<div class='loader' style='display: inline-block; width: 30px; height: 30px;'></div> Loading announcements...";
         const isIndividual = type === "individual";
         const snapRef = isIndividual ? announcementsRef.child("individual").child(normalizedRegNo) : announcementsRef.child("general");
-        snapRef.on("value", (snapshot) => {
+        snapRef.once("value", (snapshot) => {
           const announcements = [];
-          snapshot.forEach(childSnapshot => {
-            const value = childSnapshot.val();
-            if (value && (value.message || value.text)) {
-              const sender = value.sender || value.teacher || value.accountant || (isIndividual ? "Unknown" : value.author);
-              if (sender) {
-                getUserNameByEmail(sender + (sender.includes("@") ? "" : ".stacc@moke.ac"), value.role === "accountant" ? "accountants" : "teachers").then(name => {
-                  announcements.push({ ...value, key: childSnapshot.key, type, sender: name, date: value.date || new Date().toISOString() });
-                  renderAnnouncements(announcements);
+          const readRef = db.ref(`users/students/${normalizedRegNo}/readAnnouncements`);
+          readRef.once("value", (readSnapshot) => {
+            const readAnnouncements = readSnapshot.val() || {};
+            snapshot.forEach(childSnapshot => {
+              const value = childSnapshot.val();
+              if (value && (value.message || value.text)) {
+                const sender = value.sender || value.teacher || value.accountant || (isIndividual ? "Unknown" : value.author);
+                const isRead = readAnnouncements[childSnapshot.key] === true;
+                announcements.push({
+                  ...value,
+                  key: childSnapshot.key,
+                  type,
+                  sender: sender || "Unknown",
+                  date: value.date || new Date().toISOString(),
+                  isRead
                 });
-              } else {
-                announcements.push({ ...value, key: childSnapshot.key, type, sender: "Unknown", date: value.date || new Date().toISOString() });
-                renderAnnouncements(announcements);
               }
+            });
+            if (announcements.length === 0) {
+              announcementsContainer.innerHTML = `<p>No ${isIndividual ? "individual" : "general"} announcements available.</p>`;
+            } else {
+              Promise.all(announcements.map(ann => {
+                if (ann.sender && ann.sender !== "Unknown") {
+                  return getUserNameByEmail(ann.sender + (ann.sender.includes("@") ? "" : ".stacc@moke.ac"), ann.role === "accountant" ? "accountants" : "teachers")
+                    .then(name => ({ ...ann, sender: name }));
+                }
+                return Promise.resolve(ann);
+              })).then(updatedAnnouncements => {
+                renderAnnouncements(updatedAnnouncements);
+              });
             }
           });
-          if (announcements.length === 0) {
-            announcementsContainer.innerHTML = `<p>No ${isIndividual ? "individual" : "general"} announcements available.</p>`;
-          }
         }, (error) => {
           showError("Failed to load announcements: " + error.message);
-          console.log("Error loading announcements:", error);
         });
       }
 
@@ -870,17 +1150,27 @@
         announcementsContainer.innerHTML = "";
         announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
         announcements.forEach(ann => {
-          const isRead = localStorage.getItem(`announcement_${ann.key}_${normalizedRegNo}`) === "read";
           const div = document.createElement("div");
-          div.className = `announcement-card ${isRead ? "read" : "unread"}`;
+          div.className = `announcement-card ${ann.isRead ? "read" : "unread"}`;
           div.innerHTML = `
             <h4>${ann.title || ann.text || ann.message} (${new Date(ann.date).toLocaleDateString()})</h4>
             <p>${ann.message || ann.text}</p>
             <p><strong>By:</strong> ${ann.sender || "Unknown"}</p>
             ${ann.type === "individual" ? '<p><strong>To:</strong> You</p>' : ""}
-            <button class="mark-read" onclick="markAsRead('${ann.key}')">Mark as Read</button>
+            ${ann.isRead ? '' : `<button class="mark-read" onclick="markAsRead('${ann.key}', '${ann.type}')">Mark as Read</button>`}
           `;
           announcementsContainer.appendChild(div);
+        });
+      }
+
+      function markAsRead(key, type) {
+        const regNo = localStorage.getItem("regNo").replace(/\//g, "_");
+        const readRef = db.ref(`users/students/${regNo}/readAnnouncements/${key}`);
+        readRef.set(true).then(() => {
+          showError("Announcement marked as read!", true);
+          updateAnnouncements(type);
+        }).catch(error => {
+          showError("Failed to mark announcement as read: " + error.message);
         });
       }
 
@@ -898,10 +1188,21 @@
         updateAnnouncements(type);
       };
 
-      function markAsRead(key) {
-        const regNo = sessionStorage.getItem("regNo").replace(/\//g, "_");
-        localStorage.setItem(`announcement_${key}_${regNo}`, "read");
-        window.location.reload();
-      }
+      updateBottomNav();
+      window.addEventListener('resize', updateBottomNav);
+      setInterval(slideShow, 5000);
+
+      const quotes = [
+        '"Education is the key to unlocking the world, a passport to freedom." - Finley Onchiri',
+        '"The future belongs to those who believe in the beauty of their dreams." - Eleanor Roosevelt',
+        '"Learn as if you will live forever, live as if you will die tomorrow." - Mahatma Gandhi'
+      ];
+      let quoteIndex = 0;
+      setInterval(() => {
+        quoteIndex = (quoteIndex + 1) % quotes.length;
+        document.getElementById("dailyQuote") && (document.getElementById("dailyQuote").textContent = quotes[quoteIndex]);
+      }, 5000);
     };
   </script>
+</body>
+</html>
